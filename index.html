@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#050505">
+<meta name="robots" content="noindex">
 <title>CARISMA TV · Zulia</title>
 <meta name="description" content="Enciende CARISMA TV, la televisión de Zulia: cambia de canal, desbloquea contenido exclusivo y sé parte de la comunidad.">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -36,12 +37,13 @@
   --key-ink:#2e2721;
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
-  --top-h:58px;
+  --top-h:0px;   /* ya no hay logo arriba: el aparato usa toda la altura */
   /* medida de diseño fija (360×640) que se escala completa con --k: todo se reduce/crece como una sola pieza */
   --vh:100vh;
   --sw:360px;
   --k:1;                                                     /* lo calcula fitStage() según el tamaño de la ventana */
-  --stage-h:calc((var(--top-h) + 640px) * var(--k));        /* logo + aparato, ya escalados */
+  --dev-h:640px;                                             /* alto del aparato; en celulares crece para llenar la pantalla */
+  --stage-h:calc((var(--top-h) + var(--dev-h)) * var(--k));
   --scr-top:calc(var(--safe-t) + (var(--vh) - var(--safe-t) - var(--safe-b) - var(--stage-h)) / 2 + var(--top-h) * var(--k));
   --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -59,6 +61,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 
 /* ---------- Logo (fuera de la pantalla) ---------- */
 #top{
+  display:none!important;   /* logo de arriba retirado: ahora va grabado en el panel */
   position:absolute;left:0;right:0;top:calc(var(--scr-top) - var(--top-h) * var(--k));height:var(--top-h);
   display:flex;align-items:center;justify-content:center;
   transform:scale(var(--k));transform-origin:50% 0;
@@ -70,7 +73,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 /* Aparato en formato 9:16: carcasa negra con la pantalla arriba y el panel de aluminio abajo */
 #device{
   position:absolute;left:50%;margin-left:calc(var(--sw) / -2);
-  width:var(--sw);aspect-ratio:9 / 16;top:var(--scr-top);
+  width:var(--sw);height:var(--dev-h);top:var(--scr-top);
   display:flex;flex-direction:column;
   border-radius:26px 26px 18px 18px;overflow:hidden;transform:translateZ(0) scale(var(--k));transform-origin:50% 0;
   box-shadow:0 24px 48px rgba(0,0,0,.85);
@@ -167,6 +170,21 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 /* canal 0: saltos rápidos ([LATEST RELEASE] → canal 10, [NEW UPDATE] amarillo parpadeando) */
 .jumps{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:6px}
 #pattern.ch0 .jumps{display:flex}
+/* cuenta regresiva: dígitos tipo OSD debajo del logo, con la misma aparición en franjas */
+#countdown{position:absolute;z-index:7;inset:0;margin:auto;width:fit-content;height:fit-content;   /* centrado sin transform (la animación usa transform) */
+  
+  display:flex;flex-direction:column;align-items:center;padding:12px 16px 10px;
+  background:rgba(11,6,5,.82);border:1px solid rgba(255,125,104,.55);
+  box-shadow:0 0 0 1px #000,0 0 18px rgba(255,100,70,.2);animation:nsReveal 1.2s steps(1) both}
+#countdown[hidden]{display:none}
+.cd-row{display:flex;align-items:flex-start;gap:4px;color:var(--osd);text-shadow:var(--osd-glow)}
+.cd-u{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:40px}
+.cd-u b{font-weight:400;font-size:38px;line-height:1;font-variant-numeric:tabular-nums}
+.cd-u i{font-style:normal;font-family:Rubik,Arial,sans-serif;font-weight:500;font-size:8px;letter-spacing:.2em;margin-right:-.2em;opacity:.8}
+.cd-sep{font-size:34px;line-height:1;animation:blink 1s steps(1) infinite}
+#countdown .cd-done{display:none;font-size:30px;animation:blink 1.1s steps(1) infinite}
+#countdown.done .cd-row{display:none}
+#countdown.done .cd-done{display:inline-block}   /* al llegar a cero */
 /* los links aparecen con el mismo efecto de franjas de arriba hacia abajo, justo después del logo */
 #pattern.ch0.reveal .jumps{animation:nsReveal 1.7s steps(1) .65s both}
 /* canal 0: logo y links salen .5 s antes que antes (la animación arranca ya avanzada) */
@@ -317,7 +335,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
   position:absolute;z-index:9;right:22px;top:34px;font-size:32px;padding:1px 7px 0;
   opacity:0;pointer-events:none;transition:opacity .2s;
 }
-.is-watch #btnExit{opacity:1;pointer-events:auto}
+.is-watch #btnExit{opacity:0;pointer-events:none}   /* sin [X] en PLAY: se sale con ATRÁS / SIGUIENTE (la [X] queda sólo en avisos y formulario) */
 .is-modal #btnExit{opacity:0;pointer-events:none}   /* con el registro abierto sólo queda la [X] del formulario */
 /* la [X] parpadea para señalar la salida */
 .nudge{animation:nudge .9s steps(1)}
@@ -407,16 +425,33 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 .is-on #controls{opacity:1;transform:none;pointer-events:auto;transition-delay:.9s}
 /* en WATCH las teclas siguen ahí pero inhabilitadas: más oscuras y sin hundirse */
 #controls .tvkey,#controls .klabel{transition:filter .25s,opacity .25s}
-.is-watch #controls .tvkey{filter:brightness(.62) saturate(.55);cursor:not-allowed}
-.is-watch #controls .klabel{opacity:.45}
+.is-watch #btnWatch{filter:brightness(.62) saturate(.55);cursor:not-allowed}   /* en PLAY sólo PLAY queda inhabilitada */
+.is-watch #controls .kcol:nth-child(2) .klabel{opacity:.45}
 /* canal sin VER: sólo esa tecla inhabilitada */
 .no-watch #btnWatch{filter:brightness(.62) saturate(.55);cursor:not-allowed}
 .no-watch #btnWatch ~ *, .no-watch .kcol:nth-child(2) .klabel{opacity:.45}
-.panel{position:relative;width:100%;max-width:270px}
+.panel{position:relative;width:100%;max-width:240px}   /* ATRÁS / SIGUIENTE un poco más al centro: deja lugar al logo grabado */
 /* switch de idioma y foco pegados a las esquinas del panel, alineados con las teclas */
 .corner-l,.corner-r{position:absolute;z-index:2}
-.lang.corner-l{left:16px;top:calc(var(--row-y) - 12px);height:24px}
-.led.corner-r{right:22px;top:calc(var(--row-y) - 4px)}
+/* panel simétrico: [recuadro logo] ATRÁS · PLAY · SIGUIENTE [recuadro foco] — mismos tamaños, a la altura de las teclas */
+.hwbox{position:absolute;z-index:2;top:29px;width:52px;height:41px;pointer-events:none;   /* zona invisible: sólo centra su contenido */
+  display:flex;align-items:center;justify-content:center}
+.hwbox.box-l{left:14px}
+.hwbox.box-r{right:14px}
+/* logo ZULIA grabado dentro del recuadro izquierdo */
+.engrave{filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 -1px 0 rgba(0,0,0,.25))}
+.engrave i{display:block;width:28px;height:19px;
+  background:linear-gradient(180deg,#76797d 0%,#93969a 55%,#83868a 100%);
+  -webkit-mask:url(logo.png) center/contain no-repeat;mask:url(logo.png) center/contain no-repeat}
+/* foco dentro de un bisel negro pequeño, como el hueco de las teclas */
+.led-bezel{display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;
+  background:#0b0b0c;box-shadow:inset 0 1px 2px #000,0 1px 0 rgba(255,255,255,.65)}
+/* switch de idioma compacto (switch arriba, ESP / EN abajo), en el lugar de SIGUIENTE */
+.lang.corner-l{left:calc(100% - 105.5px);top:55.5px;transform:translate(-50%,-50%);height:auto;
+  display:grid;grid-template-areas:"s s" "a b";row-gap:5px;align-items:center}
+.lang.corner-l .slide{grid-area:s}
+.lang.corner-l [data-lang="es"]{grid-area:a;justify-self:start}
+.lang.corner-l [data-lang="en"]{grid-area:b;justify-self:end}
 .pwr-ico{display:block;height:11px;margin-right:0}
 .pwr-ico svg{display:block;width:11px;height:11px;fill:none;stroke:#3b3e42;stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 1px 0 rgba(255,255,255,.55))}
 /* 3 columnas: la central queda exactamente al centro y las laterales miden lo mismo */
@@ -528,18 +563,26 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 /* módulo de encendido: se va medio segundo después de prender el foco */
 .is-on #power{opacity:0;transform:translateY(6px);pointer-events:none;transition-delay:.5s}
 #dnp{
-  position:absolute;z-index:6;left:50%;bottom:18px;transform:translateX(-50%);
+  position:absolute;z-index:6;left:50%;bottom:36px;transform:translateX(-50%);
   font-size:30px;animation:blink 1.1s steps(1) infinite;
 }
 .is-on #dnp{display:none}
 /* señal de alerta pequeña encima de [DO NOT PRESS] */
 #dnpIcon{
-  position:absolute;z-index:6;left:50%;bottom:56px;width:20px;height:18px;transform:translateX(-50%);
+  position:absolute;z-index:6;left:50%;bottom:74px;width:20px;height:18px;transform:translateX(-50%);
   fill:none;stroke:var(--osd);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;
   filter:drop-shadow(0 0 2px rgba(255,140,90,.9)) drop-shadow(0 0 6px rgba(255,100,60,.5));
   animation:blink 1.1s steps(1) infinite;
 }
 .is-on #dnpIcon{display:none}
+/* flecha pixelada debajo de [DO NOT PRESS], apuntando al botón de encendido; parpadea al mismo ritmo */
+#dnpArrow{
+  position:absolute;z-index:6;left:50%;bottom:12px;width:14px;height:10px;transform:translateX(-50%);
+  fill:var(--osd);shape-rendering:crispEdges;
+  filter:drop-shadow(0 0 2px rgba(255,140,90,.9)) drop-shadow(0 0 6px rgba(255,100,60,.5));
+  animation:blink 1.1s steps(1) infinite;
+}
+.is-on #dnpArrow{display:none}
 .slotbox{height:41px;display:flex;align-items:center;justify-content:center}
 #power .klabel{letter-spacing:.14em;margin-right:-.14em}
 .led{ /* foco apagado */
@@ -627,8 +670,10 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
   position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;
   padding:8px 12px;background:rgba(0,0,0,.72);
   touch-action:pan-y;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;   /* sin barra lateral encima del formulario (se sigue pudiendo deslizar) */
   animation:modalIn .25s steps(3);
 }
+#modal::-webkit-scrollbar{display:none}
 @keyframes modalIn{from{opacity:0;transform:scaleY(.02)}}
 .term{
   width:100%;max-width:400px;margin:auto;padding:12px 16px 10px;display:flex;flex-direction:column;gap:9px;
@@ -639,8 +684,8 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .term-head{display:flex;justify-content:space-between;align-items:center}
 .term p{font-size:17px;line-height:1.05;color:#e8c9bb}
 /* cada campo en una línea: etiqueta a la izquierda, campo a la derecha (estilo terminal) */
-.term label{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;column-gap:8px}
-.term label > span:first-child{font-size:18px;color:var(--osd);text-shadow:var(--osd-glow);white-space:nowrap}
+.term label,.term .lbl{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;column-gap:8px}
+.term label > span:first-child,.term .lbl > span:first-child{font-size:18px;color:var(--osd);text-shadow:var(--osd-glow);white-space:nowrap}
 .term input:not([type=checkbox]){
   width:100%;height:34px;padding:0 10px;font:21px 'VT323',monospace;color:#ffe3d6;
   background:#160b08;border:1px solid rgba(255,125,104,.45);border-radius:0;outline:none;
@@ -658,11 +703,23 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .phone{display:flex;gap:5px}
 .phone input{flex:1;min-width:0;padding:0 6px!important;font-size:19px!important}
 /* lada: se ve compacta (bandera + código) y al tocarla abre la lista completa */
-.dial{position:relative;flex:none;width:96px;height:34px;display:flex;align-items:center;
-  padding:0 20px 0 7px;background:#160b08 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23ffa070'/%3E%3C/svg%3E") no-repeat right 8px center;
+.dial{position:relative;flex:none;width:auto;height:34px;display:flex;align-items:center;   /* ancho justo: bandera + clave */
+  padding:0 14px 0 5px;background:#160b08 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0h10L5 6z' fill='%23ffa070'/%3E%3C/svg%3E") no-repeat right 4px center/7px 4px;
   border:1px solid rgba(255,125,104,.45)}
-.dial b{font:21px 'VT323',monospace;font-weight:normal;color:#ffe3d6;white-space:nowrap;overflow:hidden}
-.dial select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.dial b{font:19px 'VT323',monospace;font-weight:normal;color:#ffe3d6;white-space:nowrap;overflow:hidden}
+.dial{cursor:pointer;text-align:left}
+.phone{position:relative}
+/* lista de ladas: buscador + países (los principales primero) */
+.dial-pop{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 4px);display:flex;flex-direction:column;
+  background:#110806;border:1px solid var(--osd-hi);box-shadow:0 0 0 1px #000,0 8px 24px rgba(0,0,0,.7),0 0 14px rgba(255,110,90,.25)}
+.dial-pop[hidden]{display:none}
+.term .dial-pop .dial-q{height:32px;border:0;border-bottom:1px solid rgba(255,125,104,.35);background:#160b08}
+.dial-list{display:block;max-height:176px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.dial-opt{display:flex;gap:8px;width:100%;padding:4px 10px;font:19px 'VT323',monospace;color:#ffe3d6;text-align:left;white-space:nowrap}
+.dial-opt span{overflow:hidden;text-overflow:ellipsis;flex:1}
+.dial-opt em{font-style:normal;color:var(--osd)}
+.dial-opt:hover,.dial-opt.on{background:rgba(255,125,104,.18)}
+.dial-sep{display:block;height:1px;margin:3px 0;background:rgba(255,125,104,.3)}
 .dial:focus-within{border-color:var(--osd-hi);box-shadow:0 0 0 1px var(--osd-hi),0 0 14px rgba(255,110,90,.35)}
 .dial.bad{border-color:#ff3b3b;box-shadow:0 0 0 1px #ff3b3b}
 .ig{position:relative;display:block}
@@ -682,6 +739,34 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .term label.chk{display:flex;flex-direction:row!important;align-items:flex-start;gap:10px!important;font-size:17px;line-height:1.05;color:#e8c9bb}
 .chk input{width:20px;height:20px;margin-top:1px;accent-color:var(--osd-hi);flex:none}
 .chk a{color:var(--osd)}
+.hp{position:absolute!important;left:-9999px;width:1px!important;height:1px!important;opacity:0;pointer-events:none}   /* honeypot */
+.link-btn{align-self:center;font:15px 'VT323',monospace;color:rgba(255,200,180,.5);text-shadow:none;text-decoration:underline;text-decoration-color:rgba(255,200,180,.25);text-underline-offset:3px;padding:0 4px;margin-top:-4px}   /* discreto */
+.link-btn:hover,.link-btn:focus-visible{color:var(--osd)}
+.term .ver-only{display:none}
+.term.verify .ver-only{display:grid}
+.term.verify p.ver-only,.term.verify .link-btn.ver-only{display:block}
+.term.verify .reg-only{display:none!important}
+/* formulario compacto: cabe completo en la pantalla, sin desplazarse */
+#modal{overscroll-behavior:contain}
+.term{gap:6px;padding:10px 14px 8px}
+.form-logo .f-wrap,.form-logo img{height:22px}
+.term-head .tag{font-size:23px}
+.term p{font-size:15px;line-height:1.05}
+.term label > span:first-child,.term .lbl > span:first-child{font-size:16px}
+.term label,.term .lbl{grid-template-columns:84px minmax(0,1fr)}
+.term input:not([type=checkbox]),.term select,.dial{height:30px}
+.term input:not([type=checkbox]),.term select{font-size:19px}
+.term label.chk{font-size:15px}
+.chk input{width:18px;height:18px}
+.term .key{height:40px;margin:2px 0 2px}
+.link-btn{margin-top:-2px}
+/* en "Ya soy miembro" el botón VERIFICAR es más chico, centrado y con menos resplandor */
+.term.verify .key{width:auto;min-width:140px;align-self:center;height:36px;padding:0 22px;font-size:12px;letter-spacing:.12em;border-radius:8px;
+  box-shadow:0 3px 0 0 var(--depth),0 3px 0 2px #0a0908,0 0 0 2px #0a0908,0 0 12px 3px var(--g1)}
+.term.verify .key::before{border-radius:6px;inset:2px 3px 4px}
+/* al registrarse: el formulario se apaga como una tele (se colapsa a una línea) */
+#modal.crt-off{animation:crtOff .42s steps(6) forwards}
+@keyframes crtOff{0%{opacity:1;transform:none;filter:none}55%{opacity:1;transform:scale(1,.012);filter:brightness(3)}100%{opacity:0;transform:scale(0,.012);filter:brightness(4)}}
 .err{min-height:0;color:#ff5b4b!important;text-shadow:0 0 6px rgba(255,60,40,.6)}
 .term .key{width:100%;margin:2px 0 4px}
 /* botón del registro: naranja más intenso */
@@ -705,6 +790,7 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1225405526404317');
 fbq('track', 'PageView');
+console.log('[Pixel]', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
@@ -736,8 +822,8 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
     <div class="ns-sig"><svg class="sig" viewBox="0 0 34 18" aria-hidden="true"><circle class="dot" cx="17" cy="9" r="1.8"/><path class="w w1" d="M12.6 4.6 a6.2 6.2 0 0 0 0 8.8"/><path class="w w1" d="M21.4 4.6 a6.2 6.2 0 0 1 0 8.8"/><path class="w" d="M9 1.5 a10.6 10.6 0 0 0 0 15"/><path class="w" d="M25 1.5 a10.6 10.6 0 0 1 0 15"/><path class="w" d="M5.4 -1.2 a15 15 0 0 0 0 20.4"/><path class="w" d="M28.6 -1.2 a15 15 0 0 1 0 20.4"/></svg><span class="tag" data-i18n="noSignal">[SEÑAL DÉBIL]</span></div>
     <!-- canal 0: saltos rápidos a otros canales -->
     <div class="jumps">
-      <button class="tag rel-btn jump" data-jump="10" data-i18n="latest">LATEST RELEASE</button>
-      <button class="tag rel-btn jump upd" data-jump="7" data-i18n="newUpdate">NEW UPDATE</button>
+      <button class="tag rel-btn jump" data-jump="10" data-i18n="latest" hidden>LATEST RELEASE</button>
+      <button class="tag rel-btn jump upd" data-jump="9" data-i18n="newUpdate">NEW UPDATE</button>
     </div>
     <!-- canal 0: botón de último lanzamiento + espacios vacíos para miniaturas -->
     <div class="release">
@@ -770,11 +856,21 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
   <div id="welcome" hidden></div>
   <div id="hint" hidden><p id="hintTxt"></p><button class="hint-x" id="hintX" aria-label="Cerrar" data-i18n-aria="aClose">×</button></div>
   <!-- aviso que aparece tras la primera vuelta del video -->
+  <!-- cuenta regresiva: aparece al terminar la primera vuelta del video bloqueado (canales con "countdown") -->
+  <div id="countdown" class="countdown" hidden>
+    <div class="cd-row">
+      <span class="cd-u"><b id="cdD">00</b><i data-i18n="cdD">DÍAS</i></span><span class="cd-sep">:</span>
+      <span class="cd-u"><b id="cdH">00</b><i data-i18n="cdH">HRS</i></span><span class="cd-sep">:</span>
+      <span class="cd-u"><b id="cdM">00</b><i data-i18n="cdM">MIN</i></span><span class="cd-sep">:</span>
+      <span class="cd-u"><b id="cdS">00</b><i data-i18n="cdS">SEG</i></span>
+    </div>
+    <span class="tag cd-done" data-i18n="cdDone">[AL AIRE]</span>
+  </div>
   <div id="promo" hidden><p class="promo-txt" id="promoTxt"></p><button class="hint-x" id="promoX" aria-label="Cerrar" data-i18n-aria="aClose">×</button></div>
   <button id="btnExit" class="tag sel" aria-label="Salir" data-i18n-aria="aExit">[X]</button>
 
   <div id="decode">
-    <span class="tag sel" data-i18n="encoded">[SEÑAL CODIFICADA]</span>
+    <span class="tag sel" data-i18n="encoded">[SINTONIZANDO]</span>
     <div class="bar"><i></i></div>
     <span class="tag pct" data-i18n="decoding">[DESCIFRANDO...]</span>
   </div>
@@ -786,30 +882,42 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
     <form class="term" id="reg" novalidate>
       <div class="form-logo"><div class="f-wrap"><img id="formLogo" alt=""><canvas class="f-glow"></canvas></div><span class="logo-txt" hidden>CTV</span></div>
       <div class="term-head">
-        <span class="tag sel" data-i18n="formTitle">[REGISTRO]</span>
+        <span class="tag sel" data-i18n="formTitle">[HAZTE MIEMBRO]</span>
         <button type="button" class="tag" id="btnClose" aria-label="Cerrar" data-i18n-aria="aClose">[X]</button>
       </div>
-      <p data-i18n="formIntro">Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.</p>
-      <label><span data-i18n="fName">[NOMBRE]</span><input name="name" autocomplete="name" data-i18n-ph="phName" required></label>
-      <label><span data-i18n="fEmail">[CORREO]</span><input name="email" type="email" inputmode="email" autocomplete="email" data-i18n-ph="phEmail" required></label>
-      <label><span data-i18n="fPhone">[TELÉFONO]</span>
-        <span class="phone">
-          <span class="dial"><b id="dialShow">🇲🇽 +52</b><select name="dial" id="selDial" aria-label="Lada" data-i18n-aria="aDial"></select></span>
-          <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" data-i18n-ph="phPhone" required>
-        </span>
-      </label>
-      <label><span>[INSTAGRAM]</span><span class="ig"><i>@</i><input name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" data-i18n-ph="phIg" required></span></label>
-      <div class="row2">
+      <p class="reg-only" data-i18n="formIntro">Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.</p>
+      <label class="reg-only"><span data-i18n="fName">[NOMBRE]</span><input name="name" autocomplete="name" data-i18n-ph="phName" required></label>
+      <label class="reg-only"><span data-i18n="fEmail">[CORREO]</span><input name="email" type="email" inputmode="email" autocomplete="email" data-i18n-ph="phEmail" required></label>
+      <div class="row2 reg-only">
         <label><span data-i18n="fCountry">[PAÍS]</span><select name="country" id="selCountry" required></select></label>
         <label><span data-i18n="fState">[ESTADO]</span><select name="state" id="selState" required disabled></select><input name="stateText" id="txtState" hidden></label>
       </div>
-      <label class="chk"><input type="checkbox" name="consent" required><span><span data-i18n="consentA">Acepto el</span> <a id="privacy" target="_blank" rel="noopener" data-i18n="consentLink">aviso de privacidad</a> <span data-i18n="consentB">y recibir noticias del proyecto.</span></span></label>
+      <div class="lbl reg-only"><span id="phoneLbl" data-i18n="fPhone">[TELÉFONO]</span>
+        <span class="phone">
+          <button type="button" class="dial" id="dialBtn" aria-haspopup="listbox" aria-label="Lada" data-i18n-aria="aDial"><b id="dialShow">🇲🇽 +52</b></button>
+          <input type="hidden" name="dial" id="selDial">
+          <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" data-i18n-ph="phPhone" aria-labelledby="phoneLbl" required>
+          <!-- lista de ladas con buscador -->
+          <span class="dial-pop" id="dialPop" hidden>
+            <input class="dial-q" id="dialQ" autocomplete="off" autocapitalize="none" spellcheck="false" data-i18n-ph="phDialQ">
+            <span class="dial-list" id="dialList" role="listbox"></span>
+          </span>
+        </span>
+      </div>
+      <label class="reg-only"><span>[INSTAGRAM]</span><span class="ig"><i>@</i><input name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" data-i18n-ph="phIg" required></span></label>
+      <label class="reg-only chk"><input type="checkbox" name="consent"><span><span data-i18n="consentTxt">Acepto recibir mensajes de Zulia por correo y SMS</span> · <a id="privacy" target="_blank" rel="noopener" data-i18n="consentLink">Aviso de privacidad</a></span></label>
+      <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">   <!-- honeypot: invisible, debe quedar vacío -->
       <p class="err" id="err"></p>
+      <p class="ver-only" data-i18n="verifyIntro">Escribe el correo o teléfono con el que te registraste.</p>
+      <label class="ver-only"><span data-i18n="fContact">[CONTACTO]</span><input name="contact" id="verifyInput" autocomplete="email" autocapitalize="none" spellcheck="false" data-i18n-ph="phContact"></label>
       <button class="key" type="submit" id="btnSubmit"><span data-i18n="unlockBtn">DESBLOQUEAR</span></button>
+      <button type="button" class="link-btn reg-only" id="toVerify" data-i18n="haveAccount">Ya soy miembro</button>
+      <button type="button" class="link-btn ver-only" id="toRegister" data-i18n="backToReg">Quiero registrarme</button>
     </form>
   </div>
   <svg id="dnpIcon" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 2 L22.5 20 H1.5 Z"/><path d="M12 8.5 V13.5"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none" style="fill:var(--osd)"/></svg>
   <span class="tag" id="dnp" data-i18n="dnp">[DO NOT PRESS]</span>
+  <svg id="dnpArrow" viewBox="0 0 7 5" aria-hidden="true"><path d="M0 0h7v1H0zM1 1h5v1H1zM2 2h3v1H2zM3 3h1v1H3z"/></svg>
 </div>
 
 <div id="hw">
@@ -834,7 +942,8 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
       <span class="klabel" data-lang="en">EN</span>
     </div>
   </div>
-  <i class="led corner-r"></i>   <!-- foco: fijo en el panel, se ve en ambos módulos -->
+  <span class="hwbox box-l" aria-hidden="true"><span class="engrave"><i></i></span></span>   <!-- logo ZULIA grabado en el metal -->
+  <span class="hwbox box-r"><span class="led-bezel"><i class="led"></i></span></span>                   <!-- foco: fijo en el panel, se ve en ambos módulos -->   <!-- foco: fijo en el panel, se ve en ambos módulos -->
 </div>
 </main>
 
@@ -847,8 +956,11 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
   function fitStage() {
     const cs = getComputedStyle(probe), st = parseFloat(cs.paddingTop) || 0, sb = parseFloat(cs.paddingBottom) || 0;
     const vw = document.documentElement.clientWidth || innerWidth, vh = innerHeight;
-    const k = Math.min((vw - 20) / 360, (vh - st - sb - 10) / (58 + 640));
-    document.documentElement.style.setProperty('--k', Math.max(.3, k).toFixed(4));
+    const avail = vh - st - sb - 10;
+    const k = Math.max(.3, Math.min((vw - 20) / 360, avail / 640));
+    document.documentElement.style.setProperty('--k', k.toFixed(4));
+    // si sobra altura (celulares), la pantalla se estira para llenarla
+    document.documentElement.style.setProperty('--dev-h', Math.max(640, avail / k).toFixed(1) + 'px');
   }
   fitStage();
   addEventListener('resize', fitStage);
@@ -856,6 +968,7 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
 })();
 </script>
 <script src="data/regiones.js"></script>
+<script src="carisma-registro.js"></script>
 <script>
 /* =========================================================
    CONFIGURACIÓN — edita aquí
@@ -865,7 +978,7 @@ const CONFIG = {
   latestReleaseUrl: 'https://www.youtube.com/watch?v=aqqo3KeuUYE',   // a dónde lleva [LATEST RELEASE]
   formLogo: 'logo-ctv-mark.png',      // logo de la parte superior del registro (CTV sin texto)
   loadingVideo: 'videos/loading.mp4',  // video que se muestra mientras carga un canal
-  registerEndpoint: '',                // URL que recibe el registro (POST JSON). Vacío = solo local
+  registerEndpoint: '',                // ya no se usa: el registro va por carisma-registro.js
   privacyUrl: '#',                     // link al aviso de privacidad
 };
 
@@ -887,13 +1000,13 @@ const CHANNELS = [
   { name: 'CANAL 01', src: 'videos/ch01.mp4', unlockSrc: 'videos/ch01-unlocked.mp4', unlockLink: null, unlockUrl: YT_CARISMA, label: 'CARISMA (Verano en CDMX)', scramble: true, promo: 'promoEp1' },
   { name: 'CANAL 02', src: 'videos/ch02.mp4', unlockSrc: 'videos/ch02-unlocked.mp4', unlockLink: null, unlockUrl: YT_CARISMA, label: 'BIRKIN', promo: 'promoEp1' },
   { name: 'CANAL 03', src: 'videos/ch03.mp4', unlockSrc: 'videos/ch03-unlocked.mp4', unlockLink: null },
-  { name: 'CANAL 04', src: 'videos/ch04.mp4', unlockSrc: 'videos/ch04-unlocked.mp4', unlockLink: null, unlockUrl: YT_CARISMA, label: 'CUPCAKE', promo: 'promoEp1' },
+  { name: 'CANAL 04', src: 'videos/ch04.mp4', unlockSrc: 'videos/ch04-unlocked.mp4', unlockLink: null, unlockUrl: YT_CARISMA, label: 'CUPCAKE (Brindis en la Roma)', scramble: true, promo: 'promoEp1' },
   { name: 'CANAL 05', src: 'videos/ch05.mp4', unlockSrc: 'videos/ch05-unlocked.mp4', unlockLink: null },
   { name: 'CANAL 06', src: 'videos/ch06.mp4', unlockSrc: 'videos/ch06-unlocked.mp4', unlockLink: null },
-  { name: 'CANAL 07', src: 'videos/ch07.mp4', unlockSrc: 'videos/ch07-unlocked.mp4', unlockLink: null, label: 'PECADO ft. Leo Rizzi', scramble: true, promo: 'promoLocked' },
+  { name: 'CANAL 07', src: 'videos/ch07.mp4', unlockSrc: 'videos/ch07-unlocked.mp4', unlockLink: null },
   { name: 'CANAL 08', src: 'videos/ch08.mp4', unlockSrc: 'videos/ch08-unlocked.mp4', unlockLink: null },
-  { name: 'CANAL 09', src: 'videos/ch09.mp4', unlockSrc: 'videos/ch09-unlocked.mp4', unlockLink: null },
-  { name: 'CANAL 10', src: 'videos/ch10.mp4', unlockSrc: 'videos/ch10-unlocked.mp4', unlockLink: null, unlockUrl: 'https://www.youtube.com/watch?v=5Ng4XMlxEXk', label: 'SUPER INTENSO with Hamilton', promo: 'promoFull' },
+  { name: 'CANAL 09', src: 'videos/ch09.mp4', unlockSrc: 'videos/ch09-unlocked.mp4', unlockLink: null, label: 'PECADO ft. Leo Rizzi', scramble: true, promo: 'promoLocked', countdown: '2026-10-08T18:00:00-06:00' },   // antes en el canal 7 · contador: 8 oct 2026, 6:00 pm CST
+  { name: 'CANAL 10', src: null },   // sin contenido por ahora (antes: SUPER INTENSO with Hamilton → https://www.youtube.com/watch?v=5Ng4XMlxEXk)
 ];
 
 /* ---------- Textos ES / EN ---------- */
@@ -902,13 +1015,14 @@ const I18N = {
     pageTitle: 'CARISMA TV · Zulia', pageDesc: 'Enciende CARISMA TV, la televisión de Zulia: cambia de canal, desbloquea contenido exclusivo y sé parte de la comunidad.',
     kBack: 'ATRÁS', kWatch: 'PLAY', kNext: 'SIGUIENTE',
     channel: 'CANAL', locked: '[BLOQUEADO]', unlocked: '[DESBLOQUEADO]', unlockBtn: 'DESBLOQUEAR',
-    fEmail: '[CORREO]', phName: 'Tu nombre', phEmail: 'tu@correo.com', phPhone: '5512345678', aDial: 'Lada del país', eDial: 'Selecciona la lada', phIg: 'tuusuario',
+    fEmail: '[CORREO]', phName: 'Tu nombre', phEmail: 'tu@correo.com', phPhone: '5512345678', aDial: 'Lada del país', eDial: 'Selecciona la lada', phIg: 'tuusuario', phDialQ: 'Buscar país o clave',
     aExit: 'Salir', aClose: 'Cerrar', aPower: 'Encender', aLang: 'Idioma', aBack: 'Canal anterior', aWatch: 'Reproducir contenido', aNext: 'Canal siguiente',
-    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVA ACTUALIZACIÓN',
-    encoded: '[SEÑAL CODIFICADA]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube', welcome: 'Bienvenido, eres miembro de CARISMA TV', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK]',
-    formTitle: '[REGISTRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
+    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVA ACTUALIZACIÓN', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[AL AIRE]',
+    encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube', welcome: 'Bienvenido, eres miembro de CARISMA TV', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK]',
+    formTitle: '[HAZTE MIEMBRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
     fName: '[NOMBRE]', fPhone: '[TELÉFONO]', fCountry: '[PAÍS]', fState: '[ESTADO]', pick: 'Selecciona', pickCountryFirst: 'Elige país', writeState: 'Escribe tu estado',
-    consentA: 'Acepto el', consentLink: 'aviso de privacidad', consentB: 'y quiero recibir noticias del proyecto.',
+    consentTxt: 'Acepto recibir mensajes de Zulia por correo y SMS', consentLink: 'Aviso de privacidad',
+    haveAccount: 'Ya soy miembro', backToReg: 'Quiero registrarme', verifyIntro: 'Escribe el correo o teléfono con el que te registraste.', fContact: '[CONTACTO]', phContact: 'correo o teléfono', verifyBtn: 'VERIFICAR', verifying: 'VERIFICANDO...',
     eName: 'Escribe tu nombre', eEmail: 'Correo no válido', ePhone: 'Teléfono no válido',
     eIg: 'Usuario de Instagram no válido', eCountry: 'Selecciona tu país', eState: 'Selecciona tu estado', eConsent: 'Acepta el aviso de privacidad',
     sending: 'ENVIANDO...', eSend: 'No se pudo enviar. Intenta de nuevo.',
@@ -917,13 +1031,14 @@ const I18N = {
     pageTitle: 'CARISMA TV · Zulia', pageDesc: "Turn on CARISMA TV, Zulia's television: switch channels, unlock exclusive content and join the community.",
     kBack: 'BACK', kWatch: 'PLAY', kNext: 'NEXT',
     channel: 'CHANNEL', locked: '[LOCKED]', unlocked: '[UNLOCKED]', unlockBtn: 'UNLOCK',
-    fEmail: '[EMAIL]', phName: 'Your name', phEmail: 'you@email.com', phPhone: '5551234567', aDial: 'Country code', eDial: 'Select a country code', phIg: 'yourhandle',
+    fEmail: '[EMAIL]', phName: 'Your name', phEmail: 'you@email.com', phPhone: '5551234567', aDial: 'Country code', eDial: 'Select a country code', phIg: 'yourhandle', phDialQ: 'Search country or code',
     aExit: 'Exit', aClose: 'Close', aPower: 'Power', aLang: 'Language', aBack: 'Previous channel', aWatch: 'Play content', aNext: 'Next channel',
-    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW UPDATE',
-    encoded: '[ENCODED SIGNAL]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube', welcome: 'Welcome, you are a CARISMA TV member', promoFull: 'Press "PLAY" again to see the full video', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name',
-    formTitle: '[SIGN UP]', formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
+    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW UPDATE', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[ON AIR]',
+    encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube', welcome: 'Welcome, you are a CARISMA TV member', promoFull: 'Press "PLAY" again to see the full video', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name',
+    formTitle: '[BECOME A MEMBER]', formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
     fName: '[NAME]', fPhone: '[PHONE]', fCountry: '[COUNTRY]', fState: '[STATE]', pick: 'Select', pickCountryFirst: 'Pick country', writeState: 'Type your state',
-    consentA: 'I accept the', consentLink: 'privacy notice', consentB: 'and agree to receive project news.',
+    consentTxt: 'I agree to receive messages from Zulia by email and SMS', consentLink: 'Privacy notice',
+    haveAccount: "I'm already a member", backToReg: 'I want to sign up', verifyIntro: 'Enter the email or phone you signed up with.', fContact: '[CONTACT]', phContact: 'email or phone', verifyBtn: 'VERIFY', verifying: 'VERIFYING...',
     eName: 'Enter your name', eEmail: 'Invalid email', ePhone: 'Invalid phone number',
     eIg: 'Invalid Instagram handle', eCountry: 'Select your country', eState: 'Select your state', eConsent: 'Accept the privacy notice',
     sending: 'SENDING...', eSend: 'Could not send. Please try again.',
@@ -984,7 +1099,8 @@ const store = {
 const RESET = /[?&]reset\b/.test(location.search);
 if (RESET) {
   try { Object.keys(localStorage).filter(k => k.startsWith('tv.')).forEach(k => localStorage.removeItem(k)); } catch {}
-  ['tv.registered', 'tv.unlocked', 'tv.lang'].forEach(cookie.del);
+  ['tv.registered', 'tv.unlocked', 'tv.lang', 'tv.cd.9', 'carisma_tv_registrado'].forEach(cookie.del);
+  try { localStorage.removeItem('carisma_tv_registrado'); } catch {}
   idb.clear();
   history.replaceState(null, '', location.pathname);
 }
@@ -1238,6 +1354,11 @@ const Snd = {
     else this.clack(.35, 1.22);
   },
   click() { this.key(false); },
+  // "blip" sutil de pantalla vieja, al parpadear [DO NOT PRESS]
+  blip() {
+    this.osc({ attack: .002, dur: .045, vol: .028, type: 'square', f: 1250, to: 1150, lp: 2600 });
+    this.noise({ attack: .001, dur: .02, vol: .012, type: 'highpass', freq: 4000 });
+  },
   // cambio de canal: ráfaga de estática (ruido que se apaga en 0.5 s)
   zap() {
     if (!this.ok()) return;
@@ -1266,7 +1387,7 @@ const Snd = {
     // siseo muy bajo
     const src = c.createBufferSource(); src.buffer = this.nbuf; src.loop = true;
     const hf = c.createBiquadFilter(); hf.type = 'bandpass'; hf.frequency.value = 3000; hf.Q.value = .4;
-    const hg = c.createGain(); hg.gain.value = .0035;
+    const hg = c.createGain(); hg.gain.value = .0046;   // +15% y +15% (se oye sobre todo en los canales sin contenido)
     src.connect(hf).connect(hg).connect(g); src.start();
     // leve vaivén para que no suene plano
     const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = .23; lg.gain.value = .18;
@@ -1320,8 +1441,11 @@ let cur = 0, on = false, inIntro = false, loading = false, loadId = 0, zapUntil 
 let soundOn = true, watching = false, decodeTimer = 0;
 const DECODE_MS = 2200;   // duración de la estática de WATCH
 const unlocked = new Set(store.get('tv.unlocked', []));
-const isUnlocked = i => unlocked.has(i) || !!CHANNELS[i].free;
-let registered = store.get('tv.registered', false);
+// PECADO pasó del canal 7 al 9: quien ya lo había desbloqueado lo conserva
+if (unlocked.has(7)) { unlocked.delete(7); unlocked.add(9); store.set('tv.unlocked', [...unlocked]); }
+// registrado (según carisma-registro.js) = todos los canales al aire desbloqueados
+let registered = !!(window.CarismaRegistro && CarismaRegistro.isRegistered());
+const isUnlocked = i => registered || unlocked.has(i) || !!CHANNELS[i].free;
 // recupera de IndexedDB lo que falte (y vuelve a copiarlo a los otros dos lugares)
 if (!RESET) idb.all().then(saved => {
   for (const [k, v] of Object.entries(saved || {})) {
@@ -1329,14 +1453,13 @@ if (!RESET) idb.all().then(saved => {
     let have = null; try { have = localStorage.getItem(k); } catch {}
     if (have == null) { try { localStorage.setItem(k, v); } catch {} cookie.set(k, v); }
     try {
-      if (k === 'tv.registered' && JSON.parse(v)) registered = true;
       if (k === 'tv.unlocked') JSON.parse(v).forEach(i => unlocked.add(i));
     } catch {}
   }
   if (on) updateOSD();
 });
 // asegura que lo ya guardado exista en los 3 lugares
-['tv.registered', 'tv.unlocked'].forEach(k => { const v = store.get(k, null); if (v != null) store.set(k, v); });
+['tv.unlocked'].forEach(k => { const v = store.get(k, null); if (v != null) store.set(k, v); });
 
 // Idioma: el guardado, o el del navegador
 let lang = store.get('tv.lang', (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en');
@@ -1354,7 +1477,7 @@ function applyLang() {
 function setLang(l) {
   if (l === lang) return;
   lang = l; store.set('tv.lang', l); applyLang();
-  if (typeof fillCountries === 'function') { fillCountries(); fillStates(); fillDials(); }
+  if (typeof fillDials === 'function') { fillCountries(); fillStates(); fillDials(); }
   if (on) updateOSD();
   Snd.init(); Snd.slide();
 }
@@ -1409,6 +1532,7 @@ function unmuteNow() {
 function load(i) {
   const id = ++loadId;
   hidePromo(); promoShown = false; lastT = 0;
+  if (cdKeep(i)) { tickCountdown(); cdEl.hidden = false; } else hideCountdown();
   loading = true;
   pattern.hidden = true;
   clearTimeout(stageTimer); pattern.classList.remove('stage2', 'go', 'up');
@@ -1469,6 +1593,24 @@ const RelGlow = makeGlow($('.r-glow'), 'logo-ctv-top-edge.png');     // logo del
 
 let stageTimer = 0;
 $('#relBtn').href = CONFIG.latestReleaseUrl;
+// Cuenta regresiva: se actualiza cada segundo mientras el canal la muestre
+const cdEl = $('#countdown');
+function tickCountdown() {
+  const end = CHANNELS[cur] && CHANNELS[cur].countdown;
+  if (!end) return;
+  const ms = Math.max(0, Date.parse(end) - Date.now());
+  const p = n => String(n).padStart(2, '0');
+  const sec = Math.floor(ms / 1000);
+  $('#cdD').textContent = p(Math.floor(sec / 86400));
+  $('#cdH').textContent = p(Math.floor(sec % 86400 / 3600));
+  $('#cdM').textContent = p(Math.floor(sec % 3600 / 60));
+  $('#cdS').textContent = p(sec % 60);
+  cdEl.classList.toggle('done', ms === 0);
+}
+setInterval(() => { if (!cdEl.hidden) tickCountdown(); }, 1000);
+function hideCountdown() { cdEl.hidden = true; }
+// ya desbloqueado y mostrado una vez: el contador se queda fijo en su canal (también con PLAY)
+const cdKeep = i => !!CHANNELS[i].countdown && isUnlocked(i) && store.get('tv.cd.' + i, false);
 function showPattern() {   // muestra "sin señal" con el logo apareciendo
   pattern.hidden = false;
   clearTimeout(stageTimer);
@@ -1544,14 +1686,14 @@ function shuffleText(txt) {
 let scrTimer = 0;
 function setStatus(ch, isU) {
   clearInterval(scrTimer);
-  statusEl.classList.toggle('ok', isU);
+  statusEl.classList.toggle('ok', isU && !!ch.src && hasVideo[cur]);   // canal sin contenido: [PRÓXIMAMENTE] siempre en naranja
   statusEl.classList.toggle('long', !!ch.label && ch.label.length > 16);
   statusEl.classList.toggle('has-lock', !!ch.label);
   statusEl.classList.toggle('open', !!ch.label && isU);
   if (!ch.scramble) {
-    if (isU) statusEl.textContent = t('unlocked');
+    if (!ch.src || !hasVideo[cur]) statusEl.textContent = t('soon');                          // canal sin contenido: siempre [PRÓXIMAMENTE]
     else if (ch.label) { statusEl.textContent = `[${ch.label}]`; statusEl.classList.add('ok'); }   // título en azul
-    else statusEl.textContent = hasVideo[cur] ? t('locked') : t('soon');                      // sin video: próximamente
+    else statusEl.textContent = isU ? t('unlocked') : t('locked');
     return;
   }
   const label = ch.label, L = label.length;
@@ -1570,8 +1712,10 @@ function setStatus(ch, isU) {
   }, 40);
 }
 
+// PLAY inhabilitado: canal 0 (noWatch) y canales sin contenido (sin video)
+const playOff = i => !!CHANNELS[i].noWatch || !CHANNELS[i].src || !hasVideo[i];
 function updateOSD() {
-  body.classList.toggle('no-watch', !!CHANNELS[cur].noWatch);
+  body.classList.toggle('no-watch', playOff(cur));
   body.classList.toggle('hide-status', !!(CHANNELS[cur].release || CHANNELS[cur].hideStatus));
   updateDots();
   const ch = CHANNELS[cur];
@@ -1596,7 +1740,7 @@ function zap(sound = true) {
 function tune(dir) {
   if (!on) return;
   if (inIntro) endIntro();
-  if (watching) return;               // en WATCH sólo se sale con [X]
+  if (watching) exitWatch(false, false);   // en PLAY, ATRÁS / SIGUIENTE salen y cambian de canal
   hideHint();
   cur = (cur + dir + N) % N;
   zap();
@@ -1629,7 +1773,10 @@ function unlock(i) {
 }
 // Canales cuyo contenido desbloqueado es un link: muestra el aviso y redirige
 // Meta Pixel: nunca debe romper la web si el script está bloqueado
-function track(...args) { try { window.fbq && window.fbq(...args); } catch {} }
+function track(...args) {
+  console.log('[Pixel]', args[1], args[2] || '');
+  try { window.fbq && window.fbq(...args); } catch (e) { console.warn('[Pixel] error', e); }
+}
 function trackPlay(etapa) { track('track', 'ViewContent', { content_name: 'Canal ' + cur, content_category: etapa }); }
 function trackYouTube(i) { track('trackCustom', 'SalidaYouTube', { canal: String(i) }); }
 function goToUnlockUrl(i) {
@@ -1652,7 +1799,7 @@ $('#hintX').addEventListener('click', () => { Snd.init(); Snd.close(); hideHint(
 function watch() {
   if (!on) return;
   if (inIntro) endIntro();
-  if (CHANNELS[cur].noWatch && !watching) { Snd.error(); navigator.vibrate?.([30, 40, 30]); return; }
+  if (playOff(cur) && !watching) { Snd.error(); navigator.vibrate?.([30, 40, 30]); return; }
   if (watching) return;
   // canales con aviso (1, 2, 4): el primer PLAY sólo muestra el aviso; el segundo → forms (o directo si ya es miembro)
   if (needsPromo(cur)) {
@@ -1675,6 +1822,12 @@ let promoShown = false, lastT = 0;
 function hidePromo() { promo.hidden = true; }
 video.addEventListener('timeupdate', () => {
   const ch = CHANNELS[cur], t2 = video.currentTime;
+  // cuenta regresiva: aparece ya desbloqueado, al terminar la primera vuelta; después se queda
+  // (si ya se vio antes, al regresar al canal aparece en cuanto el video corre)
+  if (ch.countdown && isUnlocked(cur) && cdEl.hidden && (t2 + 0.5 < lastT || cdKeep(cur))) {
+    tickCountdown(); cdEl.hidden = false;
+    store.set('tv.cd.' + cur, true);
+  }
   if (needsPromo(cur) && !watching && !promoShown && t2 + 0.5 < lastT) {   // regresó al inicio = completó una vuelta
     promoShown = true;
     $('#promoTxt').textContent = t(ch.promo);
@@ -1685,7 +1838,7 @@ video.addEventListener('timeupdate', () => {
 $('#promoX').addEventListener('click', () => { Snd.init(); Snd.close(); hidePromo(); });
 
 function enterWatch() {
-  hidePromo(); hideHint();
+  hidePromo(); hideHint(); if (!cdKeep(cur)) hideCountdown();
   stopChAudio();
   watching = true;
   body.classList.add('is-watch');
@@ -1793,11 +1946,11 @@ function endIntro() {
 
 /* ---------- Registro ---------- */
 const form = $('#reg'), err = $('#err');
+const countryName = (code, l = lang) => {
+  try { return new Intl.DisplayNames([l], { type: 'region' }).of(code) || PAISES_EN[code]; } catch { return PAISES_EN[code]; }
+};
 // País → estado: lista completa de países (nombres en el idioma activo) y sus estados
 const selCountry = $('#selCountry'), selState = $('#selState'), txtState = $('#txtState');
-const countryName = code => {
-  try { return new Intl.DisplayNames([lang], { type: 'region' }).of(code) || PAISES_EN[code]; } catch { return PAISES_EN[code]; }
-};
 const stateHasList = () => !!(REGIONES[selCountry.value] || []).length;
 function fillCountries() {
   const keep = selCountry.value;
@@ -1816,32 +1969,54 @@ function fillStates() {
   selState.innerHTML = `<option value="">${hasCountry ? t('pick') : t('pickCountryFirst')}</option>` +
     list.map(n => `<option>${n}</option>`).join('');
 }
-// Lada: lista de todos los países con bandera y código; sigue al país elegido mientras no la cambien a mano
-const selDial = $('#selDial'), dialShow = $('#dialShow');
+// Lada: bandera + clave, con buscador. Primero los países principales; debajo, el resto
+const selDial = $('#selDial'), dialShow = $('#dialShow'), dialBtn = $('#dialBtn'), dialPop = $('#dialPop'), dialQ = $('#dialQ'), dialList = $('#dialList');
 let dialTouched = false;
-const defaultDial = (() => {
-  const r = ((navigator.language || '').split('-')[1] || '').toUpperCase();
-  return PAISES_TEL[r] ? r : 'MX';
-})();
+const defaultDial = 'MX';   // México +52 por defecto
+const TOP_DIALS = ['MX', 'VE', 'US', 'CO', 'ES', 'AR', 'CL', 'PE'];
+const norm = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 function showDial() {
   const v = PAISES_TEL[selDial.value];
   dialShow.textContent = v ? `${v[1]} +${v[0]}` : '+';
 }
-function fillDials() {
-  const keep = selDial.value || defaultDial;
-  const codes = Object.keys(PAISES_TEL).sort((a, b) => countryName(a).localeCompare(countryName(b), lang));
-  selDial.innerHTML = codes.map(c => `<option value="${c}">${PAISES_TEL[c][1]} ${countryName(c)} (+${PAISES_TEL[c][0]})</option>`).join('');
-  selDial.value = keep; showDial();
+function setDial(code, manual) {
+  if (!PAISES_TEL[code]) return;
+  selDial.value = code; showDial();
+  if (manual) dialTouched = true;
+  form.querySelector('.dial').classList.remove('bad');
 }
-selDial.addEventListener('change', () => { dialTouched = true; showDial(); });
+function fillDials() {
+  const q = norm(dialQ.value.trim()).replace(/^\+/, '');
+  const match = c => !q || norm(countryName(c)).includes(q) || norm(countryName(c, 'es')).includes(q) || norm(PAISES_EN[c] || '').includes(q) ||   // busca en español e inglés
+    c.toLowerCase() === q || String(PAISES_TEL[c][0]).startsWith(q);
+  const opt = c => `<button type="button" class="dial-opt${c === selDial.value ? ' on' : ''}" role="option" data-c="${c}">${PAISES_TEL[c][1]} <span>${countryName(c)}</span><em>+${PAISES_TEL[c][0]}</em></button>`;
+  const top = TOP_DIALS.filter(c => PAISES_TEL[c] && match(c));
+  const rest = Object.keys(PAISES_TEL).filter(c => !TOP_DIALS.includes(c) && match(c))
+    .sort((a, b) => countryName(a).localeCompare(countryName(b), lang));
+  dialList.innerHTML = top.map(opt).join('') + (top.length && rest.length ? '<i class="dial-sep"></i>' : '') + rest.map(opt).join('');
+}
+function openDial() { dialQ.value = ''; fillDials(); dialPop.hidden = false; dialQ.focus(); }
+function closeDial() { dialPop.hidden = true; }
+dialBtn.addEventListener('click', () => { Snd.init(); dialPop.hidden ? openDial() : closeDial(); });
+dialQ.addEventListener('input', fillDials);
+dialQ.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.preventDefault(); closeDial(); dialBtn.focus(); }
+  if (e.key === 'Enter') { e.preventDefault(); const first = dialList.querySelector('.dial-opt'); if (first) { setDial(first.dataset.c, true); closeDial(); } }
+});
+dialList.addEventListener('click', e => {
+  const b = e.target.closest('.dial-opt'); if (!b) return;
+  setDial(b.dataset.c, true); closeDial(); form.elements.phone.focus();
+});
+document.addEventListener('pointerdown', e => { if (!dialPop.hidden && !e.target.closest('.phone')) closeDial(); });
+// al elegir país, la lada se pone sola (y se puede cambiar a mano después)
 selCountry.addEventListener('change', () => {
   fillStates(); selCountry.classList.remove('bad');
-  if (!dialTouched && PAISES_TEL[selCountry.value]) { selDial.value = selCountry.value; showDial(); }
+  if (PAISES_TEL[selCountry.value]) setDial(selCountry.value, false);   // la lada sigue al país; después se puede cambiar a mano
 });
-fillDials();
+setDial(defaultDial, false);
 fillCountries(); fillStates();
 
-function openModal() { $('#modal').hidden = false; body.classList.add('is-modal'); err.textContent = ''; FormGlow.start(); }
+function openModal() { setVerifyMode(false); $('#modal').hidden = false; body.classList.add('is-modal'); err.textContent = ''; FormGlow.start(); }
 function closeModal() { $('#modal').hidden = true; body.classList.remove('is-modal'); document.activeElement?.blur(); FormGlow.stop(); }
 
 function validate(d) {
@@ -1849,7 +2024,7 @@ function validate(d) {
     ['name', d.name.trim().length >= 2, t('eName')],
     ['email', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email.trim()), t('eEmail')],
     ['dial', !!d.dial, t('eDial')],
-    ['phone', /^\d{6,14}$/.test(d.phone.replace(/\D/g, '')), t('ePhone')],
+    ['phone', /^\+\d{8,15}$/.test(fullPhone(d.phone)), t('ePhone')],
     ['instagram', /^[A-Za-z0-9._]{1,30}$/.test(d.instagram.trim().replace(/^@/, '')), t('eIg')],
     ['country', !!d.country, t('eCountry')],
     stateHasList()
@@ -1864,47 +2039,74 @@ function validate(d) {
   }
   return '';
 }
+const idioma = () => (lang === 'en' ? 'EN' : 'ES');
+// teléfono internacional: "+" + clave + número (sin espacios, guiones ni paréntesis; sin el 0 inicial).
+// Si ya lo escribieron con "+", se respeta tal cual.
+function fullPhone(raw) {
+  const v = String(raw || '').trim().replace(/[\s\-().]/g, '');
+  if (v.startsWith('+')) return '+' + v.slice(1).replace(/\D/g, '');
+  const num = v.replace(/\D/g, '').replace(/^0+/, '');
+  return `+${PAISES_TEL[selDial.value || defaultDial][0]}${num}`;
+}
+// modo "¿Ya te registraste?"
+let verifyMode = false;
+function setVerifyMode(v) {
+  verifyMode = v; form.classList.toggle('verify', v); err.textContent = '';
+  $('#btnSubmit span').textContent = t(v ? 'verifyBtn' : 'unlockBtn');
+  if (v) setTimeout(() => $('#verifyInput').focus(), 50);
+}
+$('#toVerify').addEventListener('click', () => { Snd.init(); Snd.click?.(); setVerifyMode(true); });
+$('#toRegister').addEventListener('click', () => { Snd.init(); Snd.click?.(); setVerifyMode(false); });
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
+  if (!window.CarismaRegistro) { err.textContent = `[ERROR] ${t('eSend')}`; return; }
   const d = Object.fromEntries(new FormData(form));
+  const btn = $('#btnSubmit'), label = btn.querySelector('span');
+  let res;
+  if (verifyMode) {
+    let v = (d.contact || '').trim();
+    if (!v) { err.textContent = `[ERROR] ${CarismaRegistro.errorText('missing_contact', idioma())}`; Snd.error(); return; }
+    if (!v.includes('@')) v = fullPhone(v);    // teléfono: misma normalización (sin "+" → se usa la lada elegida, MX por defecto)
+    btn.disabled = true; label.textContent = t('verifying'); err.textContent = '';
+    try { res = await CarismaRegistro.verify(v); } finally { btn.disabled = false; label.textContent = t('verifyBtn'); }
+    if (!res || !res.ok) { err.textContent = `[ERROR] ${CarismaRegistro.errorText(res && res.error, idioma())}`; Snd.error(); return; }
+    if (!res.existe) { err.textContent = `[ERROR] ${CarismaRegistro.errorText('not_found', idioma())}`; Snd.error(); }
+    return;   // si existe, el módulo dispara 'carisma:unlocked'
+  }
   d.consent = d.consent || '';
   const msg = validate(d);
   if (msg) { err.textContent = `[ERROR] ${msg}`; Snd.error(); return; }
-  const btn = $('#btnSubmit'), label = btn.querySelector('span');
   btn.disabled = true; label.textContent = t('sending'); err.textContent = '';
-  const payload = {
-    name: d.name.trim(), email: d.email.trim(),
-    phone: `+${PAISES_TEL[d.dial][0]} ${d.phone.replace(/\D/g, '')}`,   // formato internacional
-    phoneCountry: d.dial,
-    instagram: '@' + d.instagram.trim().replace(/^@/, ''),
-    country: d.country, countryName: countryName(d.country),
-    state: stateHasList() ? d.state : (d.stateText || '').trim(),
-    consent: d.consent === 'on',
-    channel: cur, channelName: CHANNELS[cur].name, timestamp: new Date().toISOString() };
   try {
-    if (CONFIG.registerEndpoint) {
-      const r = await fetch(CONFIG.registerEndpoint, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
-      });
-      if (!r.ok) throw new Error(r.status);
-    } else {
-      console.info('[registro] Sin endpoint configurado. Datos:', payload);
-    }
-    registered = true;
-    store.set('tv.registered', true);
-    track('track', 'CompleteRegistration');
-    form.reset(); dialTouched = false; selDial.value = defaultDial; showDial(); fillStates();
-    closeModal();
-    unlock(cur);
-  } catch {
-    err.textContent = `[ERROR] ${t('eSend')}`;
-  } finally {
-    btn.disabled = false; label.textContent = t('unlockBtn');
-  }
+    res = await CarismaRegistro.register({
+      nombre: d.name.trim(), correo: d.email.trim(), telefono: fullPhone(d.phone),
+      instagram: '@' + d.instagram.trim().replace(/^@/, ''),
+      pais: countryName(d.country, 'es'),
+      estado: stateHasList() ? d.state : (d.stateText || '').trim(),
+      idioma: idioma(), consentimiento: d.consent === 'on', canal: String(cur), website: d.website || '',
+    });
+  } finally { btn.disabled = false; label.textContent = t('unlockBtn'); }
+  if (!res || !res.ok) { err.textContent = `[ERROR] ${CarismaRegistro.errorText(res && res.error, idioma())}`; Snd.error(); }
+  // si salió bien, el módulo dispara 'carisma:unlocked' (y CompleteRegistration)
+});
+
+// Registro o verificación exitosa: todos los canales quedan desbloqueados y el formulario se apaga como una tele
+window.addEventListener('carisma:unlocked', () => {
+  registered = true;
+  form.reset(); setVerifyMode(false); dialTouched = false; setDial(defaultDial, false); fillStates(); closeDial();
+  const m = $('#modal');
+  const after = () => {
+    m.classList.remove('crt-off'); closeModal();
+    if (watching) unlock(cur); else if (on) updateOSD();
+  };
+  if (!m.hidden) { Snd.close(); m.classList.add('crt-off'); setTimeout(after, 430); } else after();
 });
 
 /* ---------- Eventos ---------- */
+// [DO NOT PRESS]: un blip sutil con cada parpadeo (el navegador sólo deja sonar después del primer toque en la página)
+$('#dnp').addEventListener('animationiteration', () => { if (!on && Snd.ctx && Snd.ctx.state === 'running') Snd.blip(); });
+document.addEventListener('pointerdown', () => { if (!on) Snd.init(); }, { once: true, capture: true });
 $('#btnPower').addEventListener('click', powerOn);
 $('#langSwitch').addEventListener('click', () => setLang(lang === 'es' ? 'en' : 'es'));
 document.querySelectorAll('.lang [data-lang]').forEach(el => el.addEventListener('click', () => setLang(el.dataset.lang)));
@@ -1924,8 +2126,8 @@ document.querySelectorAll('.key, .tvkey').forEach(k => {
   k.addEventListener('pointerdown', () => {
     Snd.init();
     blinkLed();
-    if (watching && k.closest('#controls')) return;   // inhabilitada: ni se hunde ni hace clic
-    if (k.id === 'btnWatch' && CHANNELS[cur].noWatch) return;
+    if (watching && k.id === 'btnWatch') return;      // en PLAY sólo PLAY está inhabilitada: ni se hunde ni hace clic
+    if (k.id === 'btnWatch' && playOff(cur)) return;
     clearTimeout(k._t); k.classList.add('pressed'); k._down = true;
     if (k.classList.contains('tvkey')) Snd.key(true);
   });
@@ -1964,10 +2166,12 @@ function nudgeExit() {
   x.classList.remove('nudge'); void x.offsetWidth; x.classList.add('nudge');
 }
 document.addEventListener('pointerdown', e => {
-  if (!watching || e.target.closest('#btnExit, #btnClose')) return;
+  if (!watching || e.target.closest('#btnClose')) return;
   if (e.target.closest('#modal')) return;           // llenando el registro: no molestar
-  if (e.target.closest('#controls .tvkey')) { Snd.init(); Snd.error(); navigator.vibrate?.([30, 40, 30]); }
-  nudgeExit();
+  if (e.target.closest('#btnWatch')) {               // PLAY ya está activo: suena error y, con el registro abierto, se señala su [X]
+    Snd.init(); Snd.error(); navigator.vibrate?.([30, 40, 30]);
+    if (body.classList.contains('is-modal')) nudgeExit();
+  }
 }, true);
 
 function pressKey(id) {
@@ -1984,7 +2188,7 @@ addEventListener('keydown', e => {
   if (!on) { if (e.key === 'Enter' || e.key === ' ') { pressKey('btnPower'); powerOn(); } return; }
   if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { pressKey('btnNext'); tune(1); }
   else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { pressKey('btnBack'); tune(-1); }
-  else if (e.key === 'Enter' || e.key === ' ') { if (!CHANNELS[cur].noWatch) pressKey('btnWatch'); watch(); }
+  else if (e.key === 'Enter' || e.key === ' ') { if (!playOff(cur)) pressKey('btnWatch'); watch(); }
 });
 
 // Pausa al salir de la pestaña
