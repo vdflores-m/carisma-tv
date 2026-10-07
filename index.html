@@ -1387,7 +1387,7 @@ const Snd = {
     // siseo muy bajo
     const src = c.createBufferSource(); src.buffer = this.nbuf; src.loop = true;
     const hf = c.createBiquadFilter(); hf.type = 'bandpass'; hf.frequency.value = 3000; hf.Q.value = .4;
-    const hg = c.createGain(); hg.gain.value = .0046;   // +15% y +15% (se oye sobre todo en los canales sin contenido)
+    const hg = c.createGain(); hg.gain.value = .0069;   // siseo de estática (+50% sobre .0046; se oye sobre todo en los canales sin contenido)
     src.connect(hf).connect(hg).connect(g); src.start();
     // leve vaivén para que no suene plano
     const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = .23; lg.gain.value = .18;
