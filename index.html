@@ -769,6 +769,11 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .chk input{width:18px;height:18px}
 .term .key{height:40px;margin:2px 0 2px}
 .link-btn{margin-top:-2px}
+/* cargando: círculo que gira a saltos (estilo retro) junto al texto del botón */
+.spin{display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;
+  vertical-align:-1px;animation:spin .8s steps(8) infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.term .key:disabled{filter:saturate(.75) brightness(.92);cursor:progress}
 /* paso 1: ¿ya eres miembro? */
 .term.ask{max-width:330px;padding:18px 20px 20px;gap:12px}
 .term.ask p{font-size:17px;line-height:1.1}
@@ -2182,7 +2187,7 @@ form.addEventListener('submit', async e => {
     let v = (d.contact || '').trim();
     if (!v) { err.textContent = `[ERROR] ${CarismaRegistro.errorText('missing_contact', idioma())}`; Snd.error(); return; }
     if (!v.includes('@')) v = fullPhone(v);    // teléfono: misma normalización (sin "+" → se usa la lada elegida, MX por defecto)
-    btn.disabled = true; label.textContent = t('verifying'); err.textContent = '';
+    btn.disabled = true; label.innerHTML = `<i class="spin"></i>${t('verifying')}`; err.textContent = '';
     try { res = await CarismaRegistro.verify(v); } finally { btn.disabled = false; label.textContent = t('verifyBtn'); }
     if (!res || !res.ok) { err.textContent = `[ERROR] ${CarismaRegistro.errorText(res && res.error, idioma())}`; Snd.error(); return; }
     if (!res.existe) { err.textContent = `[ERROR] ${CarismaRegistro.errorText('not_found', idioma())}`; Snd.error(); }
@@ -2191,7 +2196,7 @@ form.addEventListener('submit', async e => {
   d.consent = d.consent || '';
   const msg = validate(d);
   if (msg) { err.textContent = `[ERROR] ${msg}`; Snd.error(); return; }
-  btn.disabled = true; label.textContent = t('sending'); err.textContent = '';
+  btn.disabled = true; label.innerHTML = `<i class="spin"></i>${t('sending')}`; err.textContent = '';
   try {
     res = await CarismaRegistro.register({
       nombre: d.name.trim(), correo: d.email.trim(), telefono: fullPhone(d.phone),
