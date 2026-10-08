@@ -769,6 +769,15 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .chk input{width:18px;height:18px}
 .term .key{height:40px;margin:2px 0 2px}
 .link-btn{margin-top:-2px}
+/* tarjeta "Ya soy miembro": más grande, con aire y resplandor azul (el color de los miembros) */
+.term.verify{max-width:330px;padding:20px 20px 16px;gap:12px;
+  border-color:rgba(70,120,255,.75);
+  box-shadow:0 0 0 1px #000,0 0 18px rgba(30,90,255,.55),0 0 46px rgba(10,60,230,.35),inset 0 0 40px rgba(40,100,255,.08)}
+.term.verify .term-head .tag.sel{background:#0436e0;color:#e6fbff;text-shadow:0 0 4px rgba(112,232,241,.7);
+  box-shadow:0 0 2px rgba(60,120,255,.9),0 0 10px rgba(10,60,230,.6),0 0 26px rgba(10,60,230,.35)}
+.term.verify p.ver-only{font-size:17px;line-height:1.1}
+.term.verify input:not([type=checkbox]){height:36px;font-size:20px}
+.term.verify input:focus{border-color:#4f7dff;box-shadow:0 0 0 1px #4f7dff,0 0 14px rgba(40,100,255,.45)}
 /* en "Ya soy miembro" el botón VERIFICAR es más chico, centrado y con menos resplandor */
 .term.verify .key{width:auto;min-width:140px;align-self:center;height:36px;padding:0 22px;font-size:12px;letter-spacing:.12em;border-radius:8px;
   box-shadow:0 3px 0 0 var(--depth),0 3px 0 2px #0a0908,0 0 0 2px #0a0908,0 0 12px 3px var(--g1)}
