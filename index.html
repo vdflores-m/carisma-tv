@@ -745,6 +745,16 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .term.verify .ver-only{display:grid}
 .term.verify p.ver-only,.term.verify .link-btn.ver-only{display:block}
 .term.verify .reg-only{display:none!important}
+/* aviso de privacidad dentro de la tele */
+.term.privacy{max-height:100%;min-height:0}
+.priv-body{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;font-size:15px;line-height:1.15;color:#e8c9bb;padding-right:2px;
+  -webkit-mask:linear-gradient(#000 calc(100% - 24px),transparent);mask:linear-gradient(#000 calc(100% - 24px),transparent)}
+.priv-body::-webkit-scrollbar{display:none}
+.priv-body h4{font:18px 'VT323',monospace;color:var(--osd);text-shadow:var(--osd-glow);margin:10px 0 3px}
+.priv-body p,.priv-body li{font-size:15px;line-height:1.15;color:#e8c9bb}
+.priv-body ul{margin:2px 0 0 16px}
+.priv-body .upd{opacity:.6;margin-bottom:4px}
+.priv-body .end{height:20px}
 /* formulario compacto: cabe completo en la pantalla, sin desplazarse */
 #modal{overscroll-behavior:contain}
 .term{gap:6px;padding:10px 14px 8px}
@@ -878,6 +888,14 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
   <a id="cta" class="tag sel" hidden target="_blank" rel="noopener"></a>
 
   <div id="modal" hidden>
+    <!-- aviso de privacidad: sólo se abre desde el link del formulario -->
+    <div class="term privacy" id="privacyBox" hidden>
+      <div class="term-head">
+        <span class="tag sel" data-i18n="privTitle">[AVISO DE PRIVACIDAD]</span>
+        <button type="button" class="tag" id="privacyClose" aria-label="Cerrar" data-i18n-aria="aClose">[X]</button>
+      </div>
+      <div class="priv-body" id="privacyBody"></div>
+    </div>
     <form class="term" id="reg" novalidate>
       <div class="form-logo"><div class="f-wrap"><img id="formLogo" alt=""><canvas class="f-glow"></canvas></div><span class="logo-txt" hidden>CTV</span></div>
       <div class="term-head">
@@ -904,7 +922,7 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
         </span>
       </div>
       <label class="reg-only"><span>[INSTAGRAM]</span><span class="ig"><i>@</i><input name="instagram" autocomplete="off" autocapitalize="none" spellcheck="false" data-i18n-ph="phIg" required></span></label>
-      <label class="reg-only chk"><input type="checkbox" name="consent"><span><span data-i18n="consentTxt">Acepto recibir mensajes de Zulia por correo y SMS</span> · <a id="privacy" target="_blank" rel="noopener" data-i18n="consentLink">Aviso de privacidad</a></span></label>
+      <label class="reg-only chk"><input type="checkbox" name="consent"><span><span data-i18n="consentTxt">Acepto recibir mensajes de Zulia por correo y SMS</span> · <a id="privacy" href="#" data-i18n="consentLink">Aviso de privacidad</a></span></label>
       <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">   <!-- honeypot: invisible, debe quedar vacío -->
       <p class="err" id="err"></p>
       <p class="ver-only" data-i18n="verifyIntro">Escribe el correo o teléfono con el que te registraste.</p>
@@ -978,7 +996,7 @@ const CONFIG = {
   formLogo: 'logo-ctv-mark.png',      // logo de la parte superior del registro (CTV sin texto)
   loadingVideo: 'videos/loading.mp4',  // video que se muestra mientras carga un canal
   registerEndpoint: '',                // ya no se usa: el registro va por carisma-registro.js
-  privacyUrl: '#',                     // link al aviso de privacidad
+  privacyUrl: '#',                     // (el aviso de privacidad se muestra dentro de la tele; ver PRIVACY)
 };
 
 // unlockUrl = al desbloquear, en vez de un video se abre este link
@@ -1009,6 +1027,47 @@ const CHANNELS = [
 ];
 
 /* ---------- Textos ES / EN ---------- */
+// Aviso de privacidad (se abre desde el link del formulario). Completa lo que está entre [CORCHETES].
+const PRIVACY = {
+  es: `<p class="upd">Última actualización: 7 de octubre de 2026</p>
+<h4>1. Responsable</h4>
+<p>[NOMBRE DEL RESPONSABLE], con domicilio en [DOMICILIO], es responsable del tratamiento de los datos personales que recabamos en queridozulia.com (CARISMA TV de Zulia). Contacto: [CORREO DE CONTACTO].</p>
+<h4>2. Datos que recabamos</h4>
+<p>Nombre, correo electrónico, teléfono, usuario de Instagram, país y estado. También el idioma de la página, el canal desde el que te registras y la fuente de tu visita (por ejemplo, la campaña o red social). No recabamos datos sensibles.</p>
+<h4>3. Para qué los usamos</h4>
+<ul>
+<li>Registrarte como miembro de CARISMA TV, desbloquear el contenido y reconocerte cuando vuelvas (verificación con tu correo o teléfono).</li>
+<li>Enviarte mensajes de Zulia por correo electrónico y SMS sobre lanzamientos, contenido y novedades, con la autorización que nos das al registrarte. Puedes darte de baja en cualquier momento desde el mismo mensaje o escribiéndonos.</li>
+<li>Medir el alcance de nuestras campañas y mejorar la experiencia del sitio.</li>
+</ul>
+<h4>4. Cookies y tecnologías similares</h4>
+<p>Guardamos en tu navegador (cookies y almacenamiento local) que ya eres miembro, tu idioma y los canales que desbloqueaste. También usamos el Píxel de Meta para medir visitas y registros con fines publicitarios. Puedes borrarlos o bloquearlos desde la configuración de tu navegador.</p>
+<h4>5. Con quién compartimos tus datos</h4>
+<p>Con proveedores que nos ayudan a operar el sitio, como Google (almacenamiento de registros), Vercel (alojamiento) y Meta (medición publicitaria), así como con [EMPRESAS O SOCIOS RELACIONADOS CON ZULIA, SI APLICA]. Algunos pueden estar fuera de México. No vendemos tus datos.</p>
+<h4>6. Tus derechos</h4>
+<p>Puedes acceder a tus datos, rectificarlos, cancelarlos u oponerte a su uso (derechos ARCO), así como revocar tu consentimiento, escribiendo a [CORREO DE CONTACTO] con tu nombre, el dato de contacto con el que te registraste y lo que solicitas. Te responderemos en los plazos que marca la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.</p>
+<h4>7. Cambios</h4>
+<p>Cualquier cambio a este aviso se publicará en esta misma sección.</p><div class="end"></div>`,
+  en: `<p class="upd">Last updated: October 7, 2026</p>
+<h4>1. Who we are</h4>
+<p>[DATA CONTROLLER NAME], located at [ADDRESS], is responsible for the personal data collected on queridozulia.com (Zulia's CARISMA TV). Contact: [CONTACT EMAIL].</p>
+<h4>2. Data we collect</h4>
+<p>Name, email, phone number, Instagram handle, country and state. We also record the page language, the channel you signed up from and where your visit came from (for example, the campaign or social network). We do not collect sensitive data.</p>
+<h4>3. How we use it</h4>
+<ul>
+<li>To register you as a CARISMA TV member, unlock the content and recognize you when you come back (verification with your email or phone).</li>
+<li>To send you messages from Zulia by email and SMS about releases, content and news, with the permission you give us when you sign up. You can unsubscribe at any time from the message itself or by writing to us.</li>
+<li>To measure the reach of our campaigns and improve the site.</li>
+</ul>
+<h4>4. Cookies and similar technologies</h4>
+<p>We store in your browser (cookies and local storage) that you are a member, your language and the channels you unlocked. We also use the Meta Pixel to measure visits and sign-ups for advertising purposes. You can delete or block them in your browser settings.</p>
+<h4>5. Who we share it with</h4>
+<p>With providers that help us run the site, such as Google (sign-up storage), Vercel (hosting) and Meta (ad measurement), and with [COMPANIES OR PARTNERS RELATED TO ZULIA, IF ANY]. Some may be located outside Mexico. We do not sell your data.</p>
+<h4>6. Your rights</h4>
+<p>You can access, correct or delete your data, object to its use, or withdraw your consent by writing to [CONTACT EMAIL] with your name, the contact you signed up with and your request. We will reply within the time frames set by Mexico's Federal Law on the Protection of Personal Data Held by Private Parties.</p>
+<h4>7. Changes</h4>
+<p>Any changes to this notice will be published in this same section.</p><div class="end"></div>`,
+};
 const I18N = {
   es: {
     pageTitle: 'CARISMA TV · Zulia', pageDesc: 'Enciende CARISMA TV, la televisión de Zulia: cambia de canal, desbloquea contenido exclusivo y sé parte de la comunidad.',
@@ -1016,11 +1075,11 @@ const I18N = {
     channel: 'CANAL', locked: '[BLOQUEADO]', unlocked: '[DESBLOQUEADO]', unlockBtn: 'DESBLOQUEAR',
     fEmail: '[CORREO]', phName: 'Tu nombre', phEmail: 'tu@correo.com', phPhone: '5512345678', aDial: 'Lada del país', eDial: 'Selecciona la lada', phIg: 'tuusuario', phDialQ: 'Buscar país o clave',
     aExit: 'Salir', aClose: 'Cerrar', aPower: 'Encender', aLang: 'Idioma', aBack: 'Canal anterior', aWatch: 'Reproducir contenido', aNext: 'Canal siguiente',
-    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO CANAL', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[AL AIRE]',
-    encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube', welcome: 'Bienvenido, eres miembro de CARISMA TV', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK]',
+    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo.', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO CANAL', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[AL AIRE]',
+    encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube.', welcome: 'Bienvenido, eres miembro de CARISMA TV.', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo.', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK].',
     formTitle: '[HAZTE MIEMBRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
     fName: '[NOMBRE]', fPhone: '[TELÉFONO]', fCountry: '[PAÍS]', fState: '[ESTADO]', pick: 'Selecciona', pickCountryFirst: 'Elige país', writeState: 'Escribe tu estado',
-    consentTxt: 'Acepto recibir mensajes de Zulia por correo y SMS', consentLink: 'Aviso de privacidad',
+    consentTxt: 'Acepto recibir mensajes de Zulia por correo y SMS', consentLink: 'Aviso de privacidad', privTitle: '[AVISO DE PRIVACIDAD]',
     haveAccount: 'Ya soy miembro', backToReg: 'Quiero registrarme', verifyIntro: 'Escribe el correo o teléfono con el que te registraste.', fContact: '[CONTACTO]', phContact: 'correo o teléfono', verifyBtn: 'VERIFICAR', verifying: 'VERIFICANDO...',
     eName: 'Escribe tu nombre', eEmail: 'Correo no válido', ePhone: 'Teléfono no válido',
     eIg: 'Usuario de Instagram no válido', eCountry: 'Selecciona tu país', eState: 'Selecciona tu estado', eConsent: 'Acepta el aviso de privacidad',
@@ -1032,11 +1091,11 @@ const I18N = {
     channel: 'CHANNEL', locked: '[LOCKED]', unlocked: '[UNLOCKED]', unlockBtn: 'UNLOCK',
     fEmail: '[EMAIL]', phName: 'Your name', phEmail: 'you@email.com', phPhone: '5551234567', aDial: 'Country code', eDial: 'Select a country code', phIg: 'yourhandle', phDialQ: 'Search country or code',
     aExit: 'Exit', aClose: 'Close', aPower: 'Power', aLang: 'Language', aBack: 'Previous channel', aWatch: 'Play content', aNext: 'Next channel',
-    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW CHANNEL', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[ON AIR]',
-    encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube', welcome: 'Welcome, you are a CARISMA TV member', promoFull: 'Press "PLAY" again to see the full video', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name',
+    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content.', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW CHANNEL', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[ON AIR]',
+    encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube.', welcome: 'Welcome, you are a CARISMA TV member.', promoFull: 'Press "PLAY" again to see the full video.', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name.',
     formTitle: '[BECOME A MEMBER]', formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
     fName: '[NAME]', fPhone: '[PHONE]', fCountry: '[COUNTRY]', fState: '[STATE]', pick: 'Select', pickCountryFirst: 'Pick country', writeState: 'Type your state',
-    consentTxt: 'I agree to receive messages from Zulia by email and SMS', consentLink: 'Privacy notice',
+    consentTxt: 'I agree to receive messages from Zulia by email and SMS', consentLink: 'Privacy notice', privTitle: '[PRIVACY NOTICE]',
     haveAccount: "I'm already a member", backToReg: 'I want to sign up', verifyIntro: 'Enter the email or phone you signed up with.', fContact: '[CONTACT]', phContact: 'email or phone', verifyBtn: 'VERIFY', verifying: 'VERIFYING...',
     eName: 'Enter your name', eEmail: 'Invalid email', ePhone: 'Invalid phone number',
     eIg: 'Invalid Instagram handle', eCountry: 'Select your country', eState: 'Select your state', eConsent: 'Accept the privacy notice',
@@ -1474,6 +1533,7 @@ const t = k => I18N[lang][k] ?? k;
 function applyLang() {
   document.documentElement.lang = lang;
   document.title = t('pageTitle');
+  const pb = document.getElementById('privacyBody'); if (pb && !document.getElementById('privacyBox').hidden) pb.innerHTML = PRIVACY[lang] || PRIVACY.es;
   document.querySelector('meta[name="description"]')?.setAttribute('content', t('pageDesc'));
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
@@ -1495,7 +1555,7 @@ document.querySelectorAll('#logo, #formLogo').forEach(img => {
   img.onerror = () => { const w = img.closest('.f-wrap') || img; w.hidden = true; w.nextElementSibling.hidden = false; };
   img.src = img.id === 'formLogo' ? CONFIG.formLogo : CONFIG.logo;
 });
-$('#privacy').href = CONFIG.privacyUrl;
+
 
 loader.addEventListener('error', () => { loaderOk = false; loader.classList.remove('show'); });
 loader.src = CONFIG.loadingVideo;
@@ -2025,7 +2085,7 @@ setDial(defaultDial, false);
 fillCountries(); fillStates();
 
 function openModal() { setVerifyMode(false); $('#modal').hidden = false; body.classList.add('is-modal'); err.textContent = ''; FormGlow.start(); }
-function closeModal() { $('#modal').hidden = true; body.classList.remove('is-modal'); document.activeElement?.blur(); FormGlow.stop(); }
+function closeModal() { closePrivacy(); $('#modal').hidden = true; body.classList.remove('is-modal'); document.activeElement?.blur(); FormGlow.stop(); }
 
 function validate(d) {
   const checks = [
@@ -2063,6 +2123,11 @@ function setVerifyMode(v) {
   $('#btnSubmit span').textContent = t(v ? 'verifyBtn' : 'unlockBtn');
   if (v) setTimeout(() => $('#verifyInput').focus(), 50);
 }
+// aviso de privacidad: reemplaza al formulario mientras está abierto (lo escrito no se pierde)
+function openPrivacy() { $('#privacyBody').innerHTML = PRIVACY[lang] || PRIVACY.es; $('#privacyBody').scrollTop = 0; form.hidden = true; $('#privacyBox').hidden = false; }
+function closePrivacy() { $('#privacyBox').hidden = true; form.hidden = false; }
+$('#privacy').addEventListener('click', e => { e.preventDefault(); Snd.init(); Snd.click?.(); openPrivacy(); });
+$('#privacyClose').addEventListener('click', () => { Snd.close(); closePrivacy(); });
 $('#toVerify').addEventListener('click', () => { Snd.init(); Snd.click?.(); setVerifyMode(true); });
 $('#toRegister').addEventListener('click', () => { Snd.init(); Snd.click?.(); setVerifyMode(false); });
 
