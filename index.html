@@ -1273,7 +1273,7 @@ const Tex = (() => {
 /* ---------- Sonidos (sintetizados, estilo aparato analógico) ----------
    Todo pasa por: reverb de cuarto pequeño → filtro paso-bajos (sonido oscuro) → compresor.
    Cada sonido tiene ataque y cola suaves: nada se corta en seco. */
-const HISS_SOFT = .0069, HISS_EMPTY = .195;   // ≈ −54 dB y −25 dB a la salida
+const HISS_SOFT = .11, HISS_EMPTY = .195;   // ≈ −30 dB (bajo los videos y canal 0) y −25 dB (canales sin contenido)
 const Snd = {
   ctx: null, on: true, out: null, nbuf: null,
   init() {
@@ -1370,7 +1370,7 @@ const Snd = {
     const g = c.createGain(); g.gain.value = .1;
     src.connect(f).connect(g).connect(c.destination); src.start();
   },
-  // siseo de fondo: fuerte (−20 dB) en los canales sin contenido, sutil (−54 dB) bajo los videos
+  // siseo de fondo: −25 dB en los canales sin contenido, −30 dB bajo los videos y en el canal 0
   setHiss(level) {
     this.hissLevel = level;
     if (!this.hissGain) return;
@@ -1724,7 +1724,7 @@ function setStatus(ch, isU) {
 const playOff = i => !!CHANNELS[i].noWatch || !CHANNELS[i].src || !hasVideo[i];
 function updateOSD() {
   body.classList.toggle('no-watch', playOff(cur));
-  Snd.setHiss(cur !== 0 && (!CHANNELS[cur].src || !hasVideo[cur]) ? HISS_EMPTY : HISS_SOFT);   // canal vacío: estática a −20 dB
+  Snd.setHiss(cur !== 0 && (!CHANNELS[cur].src || !hasVideo[cur]) ? HISS_EMPTY : HISS_SOFT);   // canal vacío: estática más fuerte
   body.classList.toggle('hide-status', !!(CHANNELS[cur].release || CHANNELS[cur].hideStatus));
   updateDots();
   const ch = CHANNELS[cur];
