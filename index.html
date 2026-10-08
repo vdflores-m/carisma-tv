@@ -769,6 +769,19 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
 .chk input{width:18px;height:18px}
 .term .key{height:40px;margin:2px 0 2px}
 .link-btn{margin-top:-2px}
+/* paso 1: ¿ya eres miembro? */
+.term.ask{max-width:330px;padding:18px 20px 20px;gap:12px}
+.term.ask p{font-size:17px;line-height:1.1}
+.ask-btns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.term.ask .key{width:100%;margin:2px 0 4px;font-size:15px;letter-spacing:.15em}
+/* tecla azul (miembros) */
+.key.blue,.term .key.blue{
+  --w1:#a9c4ff; --w2:#5b86ff; --w3:#2350dc; --depth:#0c2a8c;
+  --f1:#eef3ff; --f2:#c4d5ff; --f3:rgba(130,165,255,.92); --f4:rgba(70,115,245,.8); --fb:#7b9dff;
+  --fin:rgba(10,40,150,.45); --fglow:rgba(130,170,255,.4);
+  --g1:rgba(60,110,255,.5); --g2:rgba(40,90,255,.2);
+  --ink:#06144a;
+}
 /* tarjeta "Ya soy miembro": más grande, con aire y resplandor azul (el color de los miembros) */
 .term.verify{max-width:330px;padding:20px 20px 16px;gap:12px;
   border-color:rgba(70,120,255,.75);
@@ -898,6 +911,19 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
 
   <div id="modal" hidden>
     <!-- aviso de privacidad: sólo se abre desde el link del formulario -->
+    <!-- paso 1: ¿ya eres miembro? (SÍ → verificar, NO → registro) -->
+    <div class="term ask" id="askBox" hidden>
+      <div class="form-logo"><img src="logo-ctv-mark.png" alt="CTV"></div>
+      <div class="term-head">
+        <span class="tag sel" data-i18n="askTitle">[¿YA ERES MIEMBRO?]</span>
+        <button type="button" class="tag" id="askClose" aria-label="Cerrar" data-i18n-aria="aClose">[X]</button>
+      </div>
+      <p data-i18n="askTxt">Si ya te registraste antes, solo escribe tu correo o teléfono para entrar.</p>
+      <div class="ask-btns">
+        <button type="button" class="key blue" id="askYes"><span data-i18n="askYes">SÍ</span></button>
+        <button type="button" class="key" id="askNo"><span data-i18n="askNo">NO</span></button>
+      </div>
+    </div>
     <div class="term privacy" id="privacyBox" hidden>
       <div class="term-head">
         <span class="tag sel" data-i18n="privTitle">[AVISO DE PRIVACIDAD]</span>
@@ -1086,7 +1112,7 @@ const I18N = {
     aExit: 'Salir', aClose: 'Cerrar', aPower: 'Encender', aLang: 'Idioma', aBack: 'Canal anterior', aWatch: 'Reproducir contenido', aNext: 'Canal siguiente',
     dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo.', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO CANAL', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[AL AIRE]',
     encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube.', welcome: 'Bienvenido, eres miembro de CARISMA TV.', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo.', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK].',
-    formTitle: '[HAZTE MIEMBRO]', memberTitle: '[YA SOY MIEMBRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
+    formTitle: '[HAZTE MIEMBRO]', askTitle: '[¿YA ERES MIEMBRO?]', askTxt: 'Si ya te registraste antes, solo escribe tu correo o teléfono para entrar.', askYes: 'SÍ', askNo: 'NO', memberTitle: '[YA SOY MIEMBRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
     fName: '[NOMBRE]', fPhone: '[TELÉFONO]', fCountry: '[PAÍS]', fState: '[ESTADO]', pick: 'Selecciona', pickCountryFirst: 'Elige país', writeState: 'Escribe tu estado',
     consentTxt: 'Acepto recibir mensajes de Zulia por correo y SMS', consentLink: 'Aviso de privacidad', privTitle: '[AVISO DE PRIVACIDAD]',
     haveAccount: 'Ya soy miembro', backToReg: 'Quiero registrarme', verifyIntro: 'Escribe el correo o teléfono con el que te registraste.', fContact: '[CONTACTO]', phContact: 'correo o teléfono', verifyBtn: 'VERIFICAR', verifying: 'VERIFICANDO...',
@@ -1102,7 +1128,7 @@ const I18N = {
     aExit: 'Exit', aClose: 'Close', aPower: 'Power', aLang: 'Language', aBack: 'Previous channel', aWatch: 'Play content', aNext: 'Next channel',
     dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content.', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW CHANNEL', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[ON AIR]',
     encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube.', welcome: 'Welcome, you are a CARISMA TV member.', promoFull: 'Press "PLAY" again to see the full video.', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name.',
-    formTitle: '[BECOME A MEMBER]', memberTitle: "[I'M A MEMBER]", formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
+    formTitle: '[BECOME A MEMBER]', askTitle: '[ALREADY A MEMBER?]', askTxt: 'If you signed up before, just enter your email or phone to get in.', askYes: 'YES', askNo: 'NO', memberTitle: "[I'M A MEMBER]", formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
     fName: '[NAME]', fPhone: '[PHONE]', fCountry: '[COUNTRY]', fState: '[STATE]', pick: 'Select', pickCountryFirst: 'Pick country', writeState: 'Type your state',
     consentTxt: 'I agree to receive messages from Zulia by email and SMS', consentLink: 'Privacy notice', privTitle: '[PRIVACY NOTICE]',
     haveAccount: "I'm already a member", backToReg: 'I want to sign up', verifyIntro: 'Enter the email or phone you signed up with.', fContact: '[CONTACT]', phContact: 'email or phone', verifyBtn: 'VERIFY', verifying: 'VERIFYING...',
@@ -2093,8 +2119,8 @@ selCountry.addEventListener('change', () => {
 setDial(defaultDial, false);
 fillCountries(); fillStates();
 
-function openModal() { setVerifyMode(false); $('#modal').hidden = false; body.classList.add('is-modal'); err.textContent = ''; FormGlow.start(); }
-function closeModal() { closePrivacy(); $('#modal').hidden = true; body.classList.remove('is-modal'); document.activeElement?.blur(); FormGlow.stop(); }
+function openModal() { setVerifyMode(false); closePrivacy(); form.hidden = true; $('#askBox').hidden = false; $('#modal').hidden = false; body.classList.add('is-modal'); err.textContent = ''; FormGlow.start(); }
+function closeModal() { closePrivacy(); $('#askBox').hidden = true; $('#modal').hidden = true; body.classList.remove('is-modal'); document.activeElement?.blur(); FormGlow.stop(); }
 
 function validate(d) {
   const checks = [
@@ -2137,6 +2163,11 @@ function setVerifyMode(v) {
 // aviso de privacidad: reemplaza al formulario mientras está abierto (lo escrito no se pierde)
 function openPrivacy() { $('#privacyBody').innerHTML = PRIVACY[lang] || PRIVACY.es; $('#privacyBody').scrollTop = 0; form.hidden = true; $('#privacyBox').hidden = false; }
 function closePrivacy() { $('#privacyBox').hidden = true; form.hidden = false; }
+// paso 1: SÍ → "Ya soy miembro" (verificar), NO → registro
+function answerAsk(member) { Snd.init(); Snd.click?.(); $('#askBox').hidden = true; form.hidden = false; setVerifyMode(member); if (!member) setTimeout(() => form.elements.name.focus({ preventScroll: true }), 50); }
+$('#askYes').addEventListener('click', () => answerAsk(true));
+$('#askNo').addEventListener('click', () => answerAsk(false));
+$('#askClose').addEventListener('click', () => { Snd.close(); exitWatch(true, false); });
 $('#privacy').addEventListener('click', e => { e.preventDefault(); Snd.init(); Snd.click?.(); openPrivacy(); });
 $('#privacyClose').addEventListener('click', () => { Snd.close(); closePrivacy(); });
 $('#toVerify').addEventListener('click', () => { Snd.init(); Snd.click?.(); setVerifyMode(true); });
@@ -2234,7 +2265,7 @@ $('#langSwitch').addEventListener('pointerdown', blinkLed);
 
 // En WATCH: cualquier toque fuera de la [X] señala la salida; sobre una tecla, además suena error
 function nudgeExit() {
-  const x = body.classList.contains('is-modal') ? $('#btnClose') : $('#btnExit');
+  const x = body.classList.contains('is-modal') ? (!$('#askBox').hidden ? $('#askClose') : $('#btnClose')) : $('#btnExit');
   x.classList.remove('nudge'); void x.offsetWidth; x.classList.add('nudge');
 }
 document.addEventListener('pointerdown', e => {
