@@ -1273,7 +1273,7 @@ const Tex = (() => {
 /* ---------- Sonidos (sintetizados, estilo aparato analógico) ----------
    Todo pasa por: reverb de cuarto pequeño → filtro paso-bajos (sonido oscuro) → compresor.
    Cada sonido tiene ataque y cola suaves: nada se corta en seco. */
-const HISS_SOFT = .0069, HISS_EMPTY = .354;   // ≈ −54 dB y −20 dB a la salida
+const HISS_SOFT = .0069, HISS_EMPTY = .195;   // ≈ −54 dB y −25 dB a la salida
 const Snd = {
   ctx: null, on: true, out: null, nbuf: null,
   init() {
