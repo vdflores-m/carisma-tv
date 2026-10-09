@@ -184,6 +184,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 #countdown .cd-done{display:none;font-size:30px;animation:blink 1.1s steps(1) infinite}
 #countdown.done .cd-row{display:none}
 #countdown.done .cd-done{display:inline-block}   /* al llegar a cero */
+/* al llegar a cero: [OUT NOW] en azul (color de los miembros) */
+#countdown.done{border-color:rgba(70,120,255,.75);box-shadow:0 0 0 1px #000,0 0 18px rgba(30,90,255,.55),0 0 46px rgba(10,60,230,.35)}
+#countdown.done .cd-done{background:#0436e0;color:#e6fbff;padding:2px 8px 0;font-size:34px;animation:none;
+  text-shadow:0 0 4px rgba(112,232,241,.7);box-shadow:0 0 2px rgba(60,120,255,.9),0 0 10px rgba(10,60,230,.6),0 0 26px rgba(10,60,230,.35)}
 /* los links aparecen con el mismo efecto de franjas de arriba hacia abajo, justo después del logo */
 #pattern.ch0.reveal .jumps{animation:nsReveal 1.7s steps(1) .65s both}
 /* canal 0: logo y links salen .5 s antes que antes (la animación arranca ya avanzada) */
@@ -541,6 +545,7 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
   padding:14px 16px;font-size:22px;line-height:1.1;text-align:center;white-space:normal;color:#ffe3d6;text-shadow:var(--osd-glow);
   background:rgba(11,6,5,.9);border:1px solid rgba(255,125,104,.55);box-shadow:0 0 0 1px #000,0 0 18px rgba(255,100,70,.2);animation:modalIn .25s steps(3)}
 #welcome[hidden]{display:none}
+#welcome p{font-size:22px;line-height:1.1}
 #hint p{font-size:18px;line-height:1.1;text-align:center;color:#ffe3d6;text-shadow:var(--osd-glow)}
 .hint-x{position:absolute;top:2px;right:6px;font:22px 'VT323',monospace;color:var(--osd);text-shadow:var(--osd-glow);line-height:1}
 /* aviso del canal: tarjeta tipo terminal sobre el video */
@@ -900,7 +905,7 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
       <span class="cd-u"><b id="cdM">00</b><i data-i18n="cdM">MIN</i></span><span class="cd-sep">:</span>
       <span class="cd-u"><b id="cdS">00</b><i data-i18n="cdS">SEG</i></span>
     </div>
-    <span class="tag cd-done" data-i18n="cdDone">[AL AIRE]</span>
+    <span class="tag cd-done" data-i18n="cdDone">[OUT NOW]</span>
   </div>
   <div id="promo" hidden><p class="promo-txt" id="promoTxt"></p><button class="hint-x" id="promoX" aria-label="Cerrar" data-i18n-aria="aClose">×</button></div>
   <button id="btnExit" class="tag sel" aria-label="Salir" data-i18n-aria="aExit">[X]</button>
@@ -1114,8 +1119,8 @@ const I18N = {
     channel: 'CANAL', locked: '[BLOQUEADO]', unlocked: '[DESBLOQUEADO]', unlockBtn: 'DESBLOQUEAR',
     fEmail: '[CORREO]', phName: 'Tu nombre', phEmail: 'tu@correo.com', phPhone: '5512345678', aDial: 'Lada del país', eDial: 'Selecciona la lada', phIg: 'tuusuario', phDialQ: 'Buscar país o clave',
     aExit: 'Salir', aClose: 'Cerrar', aPower: 'Encender', aLang: 'Idioma', aBack: 'Canal anterior', aWatch: 'Reproducir contenido', aNext: 'Canal siguiente',
-    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo en YouTube.', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO CANAL', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[AL AIRE]',
-    encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube.', welcome: 'Bienvenido, eres miembro de CARISMA TV.', welcomeYT: 'Bienvenido, eres miembro de CARISMA TV. Te llevamos a YouTube…', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo en YouTube.', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK].',
+    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo en YouTube.', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO CANAL', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[OUT NOW]',
+    encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube.', welcome: 'Bienvenido, eres miembro de CARISMA TV.', welcomeYT: 'Bienvenido, eres miembro de CARISMA TV. Te llevamos a YouTube…', welcomeOpened: 'Bienvenido, eres miembro de CARISMA TV. Abrimos YouTube en otra pestaña.', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo en YouTube.', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK].',
     formTitle: '[HAZTE MIEMBRO]', askTitle: '[¿YA ERES MIEMBRO?]', askTxt: 'Si ya te registraste antes, solo escribe tu correo o teléfono para entrar.', askYes: 'SÍ', askNo: 'NO', memberTitle: '[YA SOY MIEMBRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
     fName: '[NOMBRE]', fPhone: '[TELÉFONO]', fCountry: '[PAÍS]', fState: '[ESTADO]', pick: 'Selecciona', pickCountryFirst: 'Elige país', writeState: 'Escribe tu estado',
     consentTxt: 'Acepto recibir mensajes de Zulia por correo y SMS', consentLink: 'Aviso de privacidad', privTitle: '[AVISO DE PRIVACIDAD]',
@@ -1130,8 +1135,8 @@ const I18N = {
     channel: 'CHANNEL', locked: '[LOCKED]', unlocked: '[UNLOCKED]', unlockBtn: 'UNLOCK',
     fEmail: '[EMAIL]', phName: 'Your name', phEmail: 'you@email.com', phPhone: '5551234567', aDial: 'Country code', eDial: 'Select a country code', phIg: 'yourhandle', phDialQ: 'Search country or code',
     aExit: 'Exit', aClose: 'Close', aPower: 'Power', aLang: 'Language', aBack: 'Previous channel', aWatch: 'Play content', aNext: 'Next channel',
-    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content on YouTube.', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW CHANNEL', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[ON AIR]',
-    encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube.', welcome: 'Welcome, you are a CARISMA TV member.', welcomeYT: 'Welcome, you are a CARISMA TV member. Taking you to YouTube…', promoFull: 'Press "PLAY" again to see the full video on YouTube.', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name.',
+    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content on YouTube.', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW CHANNEL', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[OUT NOW]',
+    encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube.', welcome: 'Welcome, you are a CARISMA TV member.', welcomeYT: 'Welcome, you are a CARISMA TV member. Taking you to YouTube…', welcomeOpened: 'Welcome, you are a CARISMA TV member. YouTube opened in a new tab.', promoFull: 'Press "PLAY" again to see the full video on YouTube.', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name.',
     formTitle: '[BECOME A MEMBER]', askTitle: '[ALREADY A MEMBER?]', askTxt: 'If you signed up before, just enter your email or phone to get in.', askYes: 'YES', askNo: 'NO', memberTitle: "[I'M A MEMBER]", formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
     fName: '[NAME]', fPhone: '[PHONE]', fCountry: '[COUNTRY]', fState: '[STATE]', pick: 'Select', pickCountryFirst: 'Pick country', writeState: 'Type your state',
     consentTxt: 'I agree to receive messages from Zulia by email and SMS', consentLink: 'Privacy notice', privTitle: '[PRIVACY NOTICE]',
@@ -1637,7 +1642,7 @@ function unmuteNow() {
 
 function load(i) {
   const id = ++loadId;
-  hidePromo(); promoShown = false; lastT = 0;
+  hidePromo(); hideWelcome(); promoShown = false; lastT = 0;
   if (cdKeep(i)) { tickCountdown(); cdEl.hidden = false; } else hideCountdown();
   loading = true;
   pattern.hidden = true;
@@ -1886,18 +1891,54 @@ function track(...args) {
 }
 function trackPlay(etapa) { track('track', 'ViewContent', { content_name: 'Canal ' + cur, content_category: etapa }); }
 function trackYouTube(i) { track('trackCustom', 'SalidaYouTube', { canal: String(i) }); }
+// Links externos: se abren en otra pestaña (si el navegador la bloquea, se abre aquí mismo) y la web se silencia
+function openExternal(url) {
+  goAway();
+  const w = window.open(url, '_blank');
+  if (w) { try { w.opener = null; } catch {} } else location.href = url;
+}
 function goToUnlockUrl(i) {
   trackYouTube(i);
-  setTimeout(() => { if (cur === i) location.href = CHANNELS[i].unlockUrl; }, 300);
+  openExternal(CHANNELS[i].unlockUrl);
 }
 // "Bienvenido, eres miembro de CARISMA TV" ~3 s y luego al link del canal
 const needsPromo = i => !!CHANNELS[i].promo && !(CHANNELS[i].unlockSrc && !CHANNELS[i].unlockUrl && isUnlocked(i));
+// Bienvenida + YouTube en otra pestaña, sin clics extra.
+// Si venimos de un toque (PLAY) se abre al instante; si no (después de registrarse) se intenta tras la bienvenida
+// y, si el navegador bloquea la pestaña nueva, se abre en la misma.
 function welcomeAndGo(i) {
   hidePromo(); hideHint();
-  const w = $('#welcome'); w.textContent = t('welcomeYT'); w.hidden = false;   // avisa que sale a YouTube
+  const w = $('#welcome'), url = CHANNELS[i].unlockUrl;
   trackYouTube(i);
-  setTimeout(() => { w.hidden = true; if (cur === i) location.href = CHANNELS[i].unlockUrl; }, 3000);
+  clearTimeout(w._t);
+  if (navigator.userActivation && navigator.userActivation.isActive) {
+    w.innerHTML = `<p>${t('welcomeOpened')}</p>`; w.hidden = false;
+    openExternal(url);
+    w._t = setTimeout(() => { w.hidden = true; }, 4000);
+  } else {
+    w.innerHTML = `<p>${t('welcomeYT')}</p>`; w.hidden = false;
+    w._t = setTimeout(() => { w.hidden = true; if (cur === i) openExternal(url); }, 3000);
+  }
 }
+function hideWelcome() { const w = $('#welcome'); clearTimeout(w._t); w.hidden = true; }
+// Silencio al salir (otra pestaña, otra app o un link externo) y el audio regresa solo al volver
+let away = null;
+function goAway() {
+  if (away) return;
+  away = { v: video.muted, a: chAudio.muted };
+  video.muted = true; chAudio.muted = true;
+  try { Snd.ctx && Snd.ctx.suspend(); } catch {}
+}
+function comeBack() {
+  if (!away || document.hidden) return;
+  video.muted = away.v; chAudio.muted = away.a; away = null;
+  try { Snd.ctx && Snd.ctx.resume(); } catch {}
+  if (on && !watching && video.classList.contains('ready') && video.paused) video.play().catch(() => {});
+}
+document.addEventListener('visibilitychange', () => (document.hidden ? goAway() : comeBack()));
+window.addEventListener('pagehide', goAway);
+window.addEventListener('focus', comeBack);
+document.addEventListener('pointerdown', comeBack, true);   // por si el navegador pide un toque para volver a sonar
 const hintEl = $('#hint');
 function showHint() { hidePromo(); $('#hintTxt').textContent = t('hintYT'); hintEl.hidden = false; }
 function hideHint() { hintEl.hidden = true; }
@@ -1912,12 +1953,12 @@ function watch() {
   if (needsPromo(cur)) {
     if (promo.hidden) { trackPlay('aviso'); promoShown = true; $('#promoTxt').textContent = t(CHANNELS[cur].promo); promo.hidden = false; return; }
     if (!CHANNELS[cur].unlockUrl) { trackPlay(registered ? 'miembro' : 'registro'); return enterWatch(); }   // canal 7: forms (o descifrado si ya es miembro) → video desbloqueado
-    if (isUnlocked(cur) || registered) { trackPlay('miembro'); if (!isUnlocked(cur)) { unlocked.add(cur); store.set('tv.unlocked', [...unlocked]); } Snd.jackpot(); return welcomeAndGo(cur); }
+    if (isUnlocked(cur) || registered) { trackPlay('miembro'); return enterWatch(); }   // ya desbloqueado: carga y link, sin registro
     trackPlay('registro');
     return enterWatch();
   }
   // canal ya desbloqueado que lleva a YouTube: el segundo VER abre el video completo
-  if (CHANNELS[cur].unlockUrl && isUnlocked(cur)) { trackPlay('miembro'); hideHint(); return goToUnlockUrl(cur); }
+  if (CHANNELS[cur].unlockUrl && isUnlocked(cur)) { trackPlay('miembro'); hideHint(); return enterWatch(); }
   trackPlay(isUnlocked(cur) || registered ? 'miembro' : 'registro');
   enterWatch();
 }
@@ -1961,7 +2002,7 @@ function enterWatch() {
   dec.classList.remove('show'); void dec.offsetWidth; dec.classList.add('show');
   decodeTimer = setTimeout(() => {
     dec.classList.remove('show');
-    if (isUnlocked(cur)) { if (CHANNELS[cur].unlockUrl) { toast(t('unlockedToast')); goToUnlockUrl(cur); } else { zap(); load(cur); } }
+    if (isUnlocked(cur)) { if (CHANNELS[cur].unlockUrl) { const i = cur; goToUnlockUrl(i); exitWatch(true, false); } else { zap(); load(cur); } }   // desbloqueado: link (otra pestaña) o contenido
     else if (registered) unlock(cur);
     else openModal();
   }, DECODE_MS);
