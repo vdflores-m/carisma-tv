@@ -1883,17 +1883,23 @@ function setStatus(ch, isU) {
   statusEl.classList.toggle('open', !!ch.label && isU);
   if (!ch.scramble) {
     if (!ch.src || !hasVideo[cur]) statusEl.textContent = t('soon');                          // canal sin contenido: siempre [PRÓXIMAMENTE]
-    else if (ch.label) { statusEl.textContent = `[${ch.label}]`; statusEl.classList.add('ok'); }   // título en azul
+    else if (ch.label) { statusEl.classList.add('ok'); decodeLabel(ch.label); }   // título en azul: también se descifra al llegar al canal
     else statusEl.textContent = isU ? t('unlocked') : t('locked');
     return;
   }
-  const label = ch.label, L = label.length;
+  const label = ch.label;
   if (!isU) {                                     // bloqueado: letras que no paran de revolverse
     const tick = () => { statusEl.textContent = `[${shuffleText(label)}]`; };
     tick(); scrTimer = setInterval(tick, 70);
     return;
   }
-  let k = 0;                                      // desbloqueado: se descifra de izquierda a derecha
+  decodeLabel(label);                             // desbloqueado: se descifra de izquierda a derecha
+}
+// letras revueltas que se acomodan de izquierda a derecha hasta dejar el título normal
+function decodeLabel(label) {
+  const L = label.length;
+  let k = 0;
+  statusEl.textContent = `[${shuffleText(label)}]`;
   scrTimer = setInterval(() => {
     k += 1;
     const shown = label.slice(0, k | 0);
