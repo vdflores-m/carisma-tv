@@ -342,6 +342,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-
 @keyframes flash{50%{opacity:.15}}
 
 /* ---------- Modo WATCH ---------- */
+/* silenciar: arriba a la derecha, alineado con [CANAL #/10] */
+#btnMute{position:absolute;z-index:9;right:20px;top:37px;width:38px;height:34px;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s}
+.is-on:not(.is-intro) #btnMute{opacity:1;pointer-events:auto}
+.is-modal #btnMute{opacity:0;pointer-events:none}
+#btnMute svg{width:26px;height:22px;overflow:visible;filter:drop-shadow(0 0 2px rgba(255,140,90,.9)) drop-shadow(0 0 6px rgba(255,100,60,.45))}
+#btnMute path{fill:none;stroke:var(--osd);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#btnMute .spk{fill:var(--osd)}
+#btnMute .mx{display:none}
+#btnMute.muted .wv{display:none}
+#btnMute.muted .mx{display:inline}
+#btnMute:active{transform:translateY(1px)}
 #btnExit{
   position:absolute;z-index:9;right:22px;top:34px;font-size:32px;padding:1px 7px 0;
   opacity:0;pointer-events:none;transition:opacity .2s;
@@ -564,6 +576,27 @@ body:not(.is-watch) .tvkey:active .cap,.tvkey.pressed .cap{
   box-shadow:0 0 0 1px #000,0 0 18px rgba(255,100,70,.2);animation:modalIn .25s steps(3);
 }
 #promo[hidden]{display:none}
+/* aviso con links (canal 6): no se toca el aviso entero, sólo los íconos */
+#promo.has-links{cursor:default}
+.promo-links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 4px 4px}
+.promo-links[hidden]{display:none}
+/* teclas iguales a las del registro (naranja), con el logo de la app en lugar de texto */
+.promo-links .key{
+  --w1:#ffb27a; --w2:#f5843e; --w3:#d0601d; --depth:#86360d;
+  --f1:#ffd2ac; --f2:#ffae74; --f3:rgba(255,140,72,.92); --f4:rgba(238,110,44,.8); --fb:#ff9a55;
+  --fin:rgba(150,55,10,.45); --fglow:rgba(255,150,80,.4);
+  --g1:rgba(255,120,40,.5); --g2:rgba(255,100,30,.2);
+  --ink:#2a1004;
+  display:flex;align-items:center;justify-content:center;height:40px;text-decoration:none;
+  box-shadow:0 4px 0 0 var(--depth),0 4px 0 2px #0a0908,0 0 0 2px #0a0908,0 0 0 3px rgba(255,255,255,.06),0 0 14px 3px var(--g1)}
+.promo-links .key:active,.promo-links .key.pressed{box-shadow:0 1px 0 0 var(--depth),0 1px 0 2px #0a0908,0 0 0 2px #0a0908,0 0 0 3px rgba(255,255,255,.06),0 0 18px 5px var(--g1)}
+.promo-links svg{width:24px;height:24px;fill:currentColor;shape-rendering:crispEdges}   /* logos en pixel art (retro) */
+/* canal con íconos: mientras no termina la primera vuelta, una flecha parpadea señalando PLAY */
+.play-cue{position:absolute;z-index:7;left:50%;bottom:3px;width:17px;height:12px;margin-left:-8.5px;color:var(--osd);display:none;
+  filter:drop-shadow(0 0 3px rgba(255,120,70,.8));animation:cueBob .7s steps(2) infinite}
+.play-cue svg{display:block;width:100%;height:100%;fill:currentColor;shape-rendering:crispEdges}
+.cue-play:not(.is-watch):not(.is-modal) .play-cue{display:block}
+@keyframes cueBob{50%{transform:translateY(3px)}}
 .promo-txt{font-size:18px;line-height:1.1;text-align:center;color:#ffe3d6;text-shadow:var(--osd-glow)}
 #cta{
   position:absolute;z-index:6;left:50%;transform:translateX(-50%);
@@ -873,7 +906,8 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
     <!-- canal 0: saltos rápidos a otros canales -->
     <div class="jumps">
       <button class="tag rel-btn jump" data-jump="10" data-i18n="latest" hidden>LATEST RELEASE</button>
-      <button class="tag rel-btn jump upd" data-jump="7" data-i18n="newUpdate">NUEVO LANZAMIENTO</button>
+      <button class="tag rel-btn jump upd" data-jump="6" data-i18n="newUpdate">NUEVO LANZAMIENTO</button>
+      <button class="tag rel-btn jump" id="albumBtn" data-i18n="albumCd">ALBUM COUNT DOWN</button>
     </div>
     <!-- canal 0: botón de último lanzamiento + espacios vacíos para miniaturas -->
     <div class="release">
@@ -902,6 +936,7 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
     <span class="tag sel num" id="osdNum">[CANAL 0/10]</span>
   </div>
   <span class="tag" id="status">[BLOQUEADO]</span>
+  <i class="play-cue" aria-hidden="true"><svg viewBox="0 0 7 5"><path d="M0 0h7v1H0zM1 1h5v1H1zM2 2h3v1H2zM3 3h1v1H3z"/></svg></i>   <!-- flecha hacia PLAY (canal con íconos, hasta que termina la primera vuelta) -->
   <!-- aviso: después de desbloquear, VER lleva a YouTube -->
   <div id="welcome" hidden></div>
   <div id="hint" hidden><p id="hintTxt"></p><button class="hint-x" id="hintX" aria-label="Cerrar" data-i18n-aria="aClose">×</button></div>
@@ -916,7 +951,14 @@ src="https://www.facebook.com/tr?id=1225405526404317&ev=PageView&noscript=1"
     </div>
     <span class="tag cd-done" data-i18n="cdDone">[OUT NOW]</span>
   </div>
-  <div id="promo" hidden><p class="promo-txt" id="promoTxt"></p><button class="hint-x" id="promoX" aria-label="Cerrar" data-i18n-aria="aClose">×</button></div>
+  <div id="promo" hidden><p class="promo-txt" id="promoTxt"></p>
+    <div class="promo-links" id="promoLinks" hidden>
+      <a class="key" id="lnkYT" target="_blank" rel="noopener" aria-label="YouTube"><span><svg viewBox="-2 -4 20 20" aria-hidden="true"><path d="M0 2h1v1h-1zM0 3h1v1h-1zM0 4h1v1h-1zM0 5h1v1h-1zM0 6h1v1h-1zM0 7h1v1h-1zM0 8h1v1h-1zM0 9h1v1h-1zM1 1h1v1h-1zM1 10h1v1h-1zM2 0h1v1h-1zM2 11h1v1h-1zM3 0h1v1h-1zM3 11h1v1h-1zM4 0h1v1h-1zM4 11h1v1h-1zM5 0h1v1h-1zM5 11h1v1h-1zM6 0h1v1h-1zM6 3h1v1h-1zM6 4h1v1h-1zM6 5h1v1h-1zM6 6h1v1h-1zM6 7h1v1h-1zM6 8h1v1h-1zM6 11h1v1h-1zM7 0h1v1h-1zM7 3h1v1h-1zM7 4h1v1h-1zM7 5h1v1h-1zM7 6h1v1h-1zM7 7h1v1h-1zM7 8h1v1h-1zM7 11h1v1h-1zM8 0h1v1h-1zM8 4h1v1h-1zM8 5h1v1h-1zM8 6h1v1h-1zM8 7h1v1h-1zM8 11h1v1h-1zM9 0h1v1h-1zM9 4h1v1h-1zM9 5h1v1h-1zM9 6h1v1h-1zM9 7h1v1h-1zM9 11h1v1h-1zM10 0h1v1h-1zM10 5h1v1h-1zM10 6h1v1h-1zM10 11h1v1h-1zM11 0h1v1h-1zM11 11h1v1h-1zM12 0h1v1h-1zM12 11h1v1h-1zM13 0h1v1h-1zM13 11h1v1h-1zM14 1h1v1h-1zM14 10h1v1h-1zM15 2h1v1h-1zM15 3h1v1h-1zM15 4h1v1h-1zM15 5h1v1h-1zM15 6h1v1h-1zM15 7h1v1h-1zM15 8h1v1h-1zM15 9h1v1h-1z"/></svg></span></a>
+      <a class="key" id="lnkSP" target="_blank" rel="noopener" aria-label="Spotify"><span><svg viewBox="-2 -2 20 20" aria-hidden="true"><path d="M0 5h1v1h-1zM0 6h1v1h-1zM0 7h1v1h-1zM0 8h1v1h-1zM0 9h1v1h-1zM0 10h1v1h-1zM1 3h1v1h-1zM1 4h1v1h-1zM1 11h1v1h-1zM1 12h1v1h-1zM2 2h1v1h-1zM2 13h1v1h-1zM3 1h1v1h-1zM3 14h1v1h-1zM4 1h1v1h-1zM4 6h1v1h-1zM4 14h1v1h-1zM5 0h1v1h-1zM5 6h1v1h-1zM5 9h1v1h-1zM5 15h1v1h-1zM6 0h1v1h-1zM6 5h1v1h-1zM6 8h1v1h-1zM6 11h1v1h-1zM6 15h1v1h-1zM7 0h1v1h-1zM7 5h1v1h-1zM7 8h1v1h-1zM7 11h1v1h-1zM7 15h1v1h-1zM8 0h1v1h-1zM8 5h1v1h-1zM8 8h1v1h-1zM8 11h1v1h-1zM8 15h1v1h-1zM9 0h1v1h-1zM9 5h1v1h-1zM9 8h1v1h-1zM9 11h1v1h-1zM9 15h1v1h-1zM10 0h1v1h-1zM10 6h1v1h-1zM10 9h1v1h-1zM10 12h1v1h-1zM10 15h1v1h-1zM11 1h1v1h-1zM11 6h1v1h-1zM11 9h1v1h-1zM11 14h1v1h-1zM12 1h1v1h-1zM12 7h1v1h-1zM12 14h1v1h-1zM13 2h1v1h-1zM13 13h1v1h-1zM14 3h1v1h-1zM14 4h1v1h-1zM14 11h1v1h-1zM14 12h1v1h-1zM15 5h1v1h-1zM15 6h1v1h-1zM15 7h1v1h-1zM15 8h1v1h-1zM15 9h1v1h-1zM15 10h1v1h-1z"/></svg></span></a>
+    </div><button class="hint-x" id="promoX" aria-label="Cerrar" data-i18n-aria="aClose">×</button></div>
+  <button id="btnMute" aria-label="Silenciar" data-i18n-aria="aMute" aria-pressed="false">
+    <svg viewBox="0 0 24 20" aria-hidden="true"><path class="spk" d="M2 7h4l5-4v14l-5-4H2z"/><path class="wv" d="M14.5 6.5a5 5 0 0 1 0 7"/><path class="wv" d="M17.5 3.8a9 9 0 0 1 0 12.4"/><path class="mx" d="M15 7l6 6M21 7l-6 6"/></svg>
+  </button>
   <button id="btnExit" class="tag sel" aria-label="Salir" data-i18n-aria="aExit">[X]</button>
 
   <div id="decode">
@@ -1062,10 +1104,14 @@ const CONFIG = {
 // noWatch: true = en ese canal la tecla VER está inhabilitada
 // audio (opcional) = sonido que se reproduce una vez al llegar al canal, sin cambiar la imagen
 // Canales 0 a 10 (el número del canal = su posición en la lista). src = video en loop. unlockSrc = video que se desbloquea con WATCH.
+// links = {yt, sp}: canal ya estrenado; PLAY (y el aviso) muestran íconos a YouTube y Spotify, sin registro
 // unlockLink (opcional) = botón extra tras desbloquear, ej. {label:'[PRE-SAVE]', href:'https://...'}
 // Todos los videos llevan textura (grano/estática encima). Para quitarla en un canal: texture: false
 const YT_EP2 = 'https://www.youtube.com/watch?v=mI6M5dKNuJE';   // YouTube de CARISMA TV EP. 2
 const YT_CARISMA = 'https://youtu.be/aqqo3KeuUYE?si=rQ5rx3OCe97Cdje0';   // YouTube de CARISMA TV
+const YT_CDC = 'https://www.youtube.com/watch?v=C_qh5xdkgb4&list=RDC_qh5xdkgb4&start_radio=1';   // video de CARGO DE CONCIENCIA
+const SP_CDC = 'https://open.spotify.com/album/0AAfjNV5Nf9ATaMKXR5fQt?si=daf400a1f76c4ecf';   // CARGO DE CONCIENCIA en Spotify (mismo link que ALBUM COUNT DOWN)
+const ALBUM_URL = 'https://open.spotify.com/album/0AAfjNV5Nf9ATaMKXR5fQt?si=daf400a1f76c4ecf';   // ALBUM COUNT DOWN del canal 0 (registro → Spotify)
 const CHANNELS = [
   { name: 'CANAL 00', src: 'videos/ch00.mp4', unlockSrc: 'videos/ch00-unlocked.mp4', unlockLink: null, audio: 'audio/encendido.m4a', noWatch: true, hideStatus: true },
   { name: 'CANAL 01', src: 'videos/ch01.mp4', unlockSrc: 'videos/ch01-unlocked.mp4', unlockLink: null, unlockUrl: YT_CARISMA, label: 'CARISMA (Verano en CDMX)', scramble: true, promo: 'promoEp1' },
@@ -1073,7 +1119,7 @@ const CHANNELS = [
   { name: 'CANAL 03', src: 'videos/ch03.mp4', unlockLink: null, unlockUrl: YT_CARISMA, label: 'CUPCAKE (Brindis en la Roma)', scramble: true, promo: 'promoEp1' },   // CUPCAKE (antes en el canal 4)
   { name: 'CANAL 04', src: null },   // sin contenido
   { name: 'CANAL 05', src: 'videos/ch05.mp4', unlockLink: null, unlockUrl: YT_EP2, label: 'STUSSY', scramble: true, promo: 'promoEp2' },   // STUSSY → YouTube EP. 2 (con registro)
-  { name: 'CANAL 06', src: 'videos/ch06.mp4', unlockSrc: 'videos/ch06-unlocked.mp4', unlockLink: null },
+  { name: 'CANAL 06', src: 'videos/ch06.mp4', unlockLink: null, label: 'CARGO DE CONCIENCIA', free: true, promo: 'promoOut', links: { yt: YT_CDC, sp: SP_CDC } },   // CARGO DE CONCIENCIA: ya salió → íconos a YouTube y Spotify
   { name: 'CANAL 07', src: 'videos/ch07.mp4', unlockLink: null, unlockUrl: YT_EP2, label: 'PECADO ft. Leo Rizzi', promo: 'promoEp2', promoAt: 5, countdown: '2026-10-08T18:00:00-06:00' },   // PECADO (antes en el canal 9): registro → YouTube EP. 2 · contador
   { name: 'CANAL 08', src: 'videos/ch08.mp4', unlockSrc: 'videos/ch08-unlocked.mp4', unlockLink: null },
   { name: 'CANAL 09', src: null },   // sin contenido
@@ -1128,8 +1174,8 @@ const I18N = {
     kBack: 'ATRÁS', kWatch: 'PLAY', kNext: 'SIGUIENTE',
     channel: 'CANAL', locked: '[BLOQUEADO]', unlocked: '[DESBLOQUEADO]', unlockBtn: 'DESBLOQUEAR',
     fEmail: '[CORREO]', phName: 'Tu nombre', phEmail: 'tu@correo.com', phPhone: '5512345678', aDial: 'Lada del país', eDial: 'Selecciona la lada', phIg: 'tuusuario', phDialQ: 'Buscar país o clave',
-    aExit: 'Salir', aClose: 'Cerrar', aPower: 'Encender', aLang: 'Idioma', aBack: 'Canal anterior', aWatch: 'Reproducir contenido', aNext: 'Canal siguiente',
-    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo en YouTube.', promoEp2: 'Fragmento de CARISMA TV EP. 2. Presiona "PLAY" de nuevo para ver el contenido completo en YouTube.', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO LANZAMIENTO', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[OUT NOW]',
+    aExit: 'Salir', aMute: 'Silenciar / activar sonido', aClose: 'Cerrar', aPower: 'Encender', aLang: 'Idioma', aBack: 'Canal anterior', aWatch: 'Reproducir contenido', aNext: 'Canal siguiente',
+    dnp: '[NO PRESIONAR]', searching: '[BUSCANDO SEÑAL...]', noSignal: '[SEÑAL DÉBIL]', promoEp1: 'Fragmento de CARISMA TV EP. 1. Presiona "PLAY" de nuevo para ver el contenido completo en YouTube.', promoEp2: 'Fragmento de CARISMA TV EP. 2. Presiona "PLAY" de nuevo para ver el contenido completo en YouTube.', promoWatch: 'VER', promoClose: 'CERRAR', latest: 'ÚLTIMO LANZAMIENTO', newUpdate: 'NUEVO LANZAMIENTO', albumCd: 'ALBUM COUNT DOWN', welcomeSP: 'Bienvenido, eres miembro de CARISMA TV. Te llevamos a Spotify…', welcomeOpenedSP: 'Bienvenido, eres miembro de CARISMA TV. Abrimos Spotify en otra pestaña.', promoOut: 'YA DISPONIBLE. Mira el video o escúchala:', cdD: 'DÍAS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEG', cdDone: '[OUT NOW]',
     encoded: '[SINTONIZANDO]', decoding: '[DESCIFRANDO...]', unlockedToast: '[DESBLOQUEADO]', soon: '[PRÓXIMAMENTE]', hintYT: 'Vuelve a presionar "PLAY" para ver el video completo en YouTube.', welcome: 'Bienvenido, eres miembro de CARISMA TV.', welcomeYT: 'Bienvenido, eres miembro de CARISMA TV. Te llevamos a YouTube…', welcomeOpened: 'Bienvenido, eres miembro de CARISMA TV. Abrimos YouTube en otra pestaña.', promoFull: 'Presiona "PLAY" de nuevo para ver el video completo en YouTube.', promoLocked: 'Contenido bloqueado. Presiona "PLAY" de nuevo para desbloquear el video y el nombre del [TRACK].',
     formTitle: '[HAZTE MIEMBRO]', askTitle: '[¿YA ERES MIEMBRO?]', askTxt: 'Si ya te registraste antes, solo escribe tu correo o teléfono para entrar.', askYes: 'SÍ', askNo: 'NO', memberTitle: '[YA SOY MIEMBRO]', formIntro: 'Sé parte de CARISMA TV para desbloquear los canales y tener acceso a todos los beneficios de miembros.',
     fName: '[NOMBRE]', fPhone: '[TELÉFONO]', fCountry: '[PAÍS]', fState: '[ESTADO]', pick: 'Selecciona', pickCountryFirst: 'Elige país', writeState: 'Escribe tu estado',
@@ -1144,8 +1190,8 @@ const I18N = {
     kBack: 'BACK', kWatch: 'PLAY', kNext: 'NEXT',
     channel: 'CHANNEL', locked: '[LOCKED]', unlocked: '[UNLOCKED]', unlockBtn: 'UNLOCK',
     fEmail: '[EMAIL]', phName: 'Your name', phEmail: 'you@email.com', phPhone: '5551234567', aDial: 'Country code', eDial: 'Select a country code', phIg: 'yourhandle', phDialQ: 'Search country or code',
-    aExit: 'Exit', aClose: 'Close', aPower: 'Power', aLang: 'Language', aBack: 'Previous channel', aWatch: 'Play content', aNext: 'Next channel',
-    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content on YouTube.', promoEp2: 'Excerpt from CARISMA TV EP. 2. Press "PLAY" again to see the full content on YouTube.', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW RELEASE', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[OUT NOW]',
+    aExit: 'Exit', aMute: 'Mute / unmute', aClose: 'Close', aPower: 'Power', aLang: 'Language', aBack: 'Previous channel', aWatch: 'Play content', aNext: 'Next channel',
+    dnp: '[DO NOT PRESS]', searching: '[SEARCHING SIGNAL...]', noSignal: '[WEAK SIGNAL]', promoEp1: 'Excerpt from CARISMA TV EP. 1. Press "PLAY" again to see the full content on YouTube.', promoEp2: 'Excerpt from CARISMA TV EP. 2. Press "PLAY" again to see the full content on YouTube.', promoWatch: 'WATCH', promoClose: 'CLOSE', latest: 'LATEST RELEASE', newUpdate: 'NEW RELEASE', albumCd: 'ALBUM COUNT DOWN', welcomeSP: 'Welcome, you are a CARISMA TV member. Taking you to Spotify…', welcomeOpenedSP: 'Welcome, you are a CARISMA TV member. Spotify opened in a new tab.', promoOut: 'OUT NOW. Watch the video or listen:', cdD: 'DAYS', cdH: 'HRS', cdM: 'MIN', cdS: 'SEC', cdDone: '[OUT NOW]',
     encoded: '[TUNING IN]', decoding: '[DECODING...]', unlockedToast: '[UNLOCKED]', soon: '[COMING SOON]', hintYT: 'Press "PLAY" again to see the full video on YouTube.', welcome: 'Welcome, you are a CARISMA TV member.', welcomeYT: 'Welcome, you are a CARISMA TV member. Taking you to YouTube…', welcomeOpened: 'Welcome, you are a CARISMA TV member. YouTube opened in a new tab.', promoFull: 'Press "PLAY" again to see the full video on YouTube.', promoLocked: 'Locked content. Press "PLAY" again to unlock the video and the [TRACK] name.',
     formTitle: '[BECOME A MEMBER]', askTitle: '[ALREADY A MEMBER?]', askTxt: 'If you signed up before, just enter your email or phone to get in.', askYes: 'YES', askNo: 'NO', memberTitle: "[I'M A MEMBER]", formIntro: 'Become part of CARISMA TV to unlock the channels and get access to all member benefits.',
     fName: '[NAME]', fPhone: '[PHONE]', fCountry: '[COUNTRY]', fState: '[STATE]', pick: 'Select', pickCountryFirst: 'Pick country', writeState: 'Type your state',
@@ -1211,7 +1257,7 @@ const store = {
 const RESET = /[?&]reset\b/.test(location.search);
 if (RESET) {
   try { Object.keys(localStorage).filter(k => k.startsWith('tv.')).forEach(k => localStorage.removeItem(k)); } catch {}
-  ['tv.registered', 'tv.unlocked', 'tv.lang', 'tv.cd.7', 'tv.cd.9', 'carisma_tv_registrado'].forEach(cookie.del);
+  ['tv.registered', 'tv.unlocked', 'tv.lang', 'tv.cd.6', 'tv.cd.7', 'tv.cd.9', 'carisma_tv_registrado'].forEach(cookie.del);
   try { localStorage.removeItem('carisma_tv_registrado'); } catch {}
   idb.clear();
   history.replaceState(null, '', location.pathname);
@@ -1385,11 +1431,11 @@ const Tex = (() => {
 /* ---------- Sonidos (sintetizados, estilo aparato analógico) ----------
    Todo pasa por: reverb de cuarto pequeño → filtro paso-bajos (sonido oscuro) → compresor.
    Cada sonido tiene ataque y cola suaves: nada se corta en seco. */
-const HISS_SOFT = .0195, HISS_CH0 = .0615, HISS_EMPTY = .195;   // ≈ −45 dB bajo los videos, −35 dB en el canal 0, −25 dB en canales sin contenido
+const HISS_SOFT = .0195, HISS_CH0 = .0615, HISS_EMPTY = .1365;   // ≈ −45 dB bajo los videos, −35 dB en el canal 0, −28 dB en canales sin contenido (−30%)
 const Snd = {
   ctx: null, on: true, out: null, nbuf: null,
   init() {
-    if (this.ctx) { this.ctx.resume(); return; }
+    if (this.ctx) { if (this.on) this.ctx.resume(); return; }   // silenciado: no se reactiva con los toques
     try {
       const c = this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 4800; lp.Q.value = .4;
@@ -1654,6 +1700,7 @@ function unmuteNow() {
 function load(i) {
   const id = ++loadId;
   hidePromo(); hideWelcome(); promoShown = false; lastT = 0;
+  body.classList.toggle('cue-play', !!CHANNELS[i].links);   // flecha a PLAY hasta que termine la primera vuelta
   if (cdKeep(i)) { tickCountdown(); cdEl.hidden = false; } else hideCountdown();
   loading = true;
   pattern.hidden = true;
@@ -1731,6 +1778,27 @@ function tickCountdown() {
 }
 setInterval(() => { if (!cdEl.hidden) tickCountdown(); }, 1000);
 function hideCountdown() { cdEl.hidden = true; }
+// ALBUM COUNT DOWN (canal 0): siempre pide el registro de inmediato; al terminarlo (o verificar que ya es miembro) → álbum en Spotify
+let albumFlow = false;
+function albumGo() {
+  const w = $('#welcome');
+  track('trackCustom', 'SalidaSpotify', { canal: 'album' });
+  clearTimeout(w._t);
+  if (navigator.userActivation && navigator.userActivation.isActive) {
+    w.innerHTML = `<p>${t('welcomeOpenedSP')}</p>`; w.hidden = false;
+    openExternal(ALBUM_URL);
+    w._t = setTimeout(() => { w.hidden = true; }, 4000);
+  } else {
+    w.innerHTML = `<p>${t('welcomeSP')}</p>`; w.hidden = false;
+    w._t = setTimeout(() => { w.hidden = true; if (cur === 0) openExternal(ALBUM_URL); }, 3000);
+  }
+}
+function albumClick() {
+  if (!on) return;
+  Snd.init(); Snd.key(true); setTimeout(() => Snd.key(false), 120);
+  track('track', 'ViewContent', { content_name: 'Album countdown', content_category: 'registro' });
+  albumFlow = true; openModal();   // siempre pide el registro (los miembros entran con "SÍ" y su correo o teléfono)
+}
 // ya desbloqueado y mostrado una vez: el contador se queda fijo en su canal (también con PLAY)
 const cdOpen = i => isUnlocked(i) || !CHANNELS[i].unlockSrc;   // el contador sale si el video que se ve ya es el completo
 const cdKeep = i => !!CHANNELS[i].countdown && cdOpen(i) && store.get('tv.cd.' + i, false);
@@ -1865,6 +1933,7 @@ function tune(dir) {
   if (!on) return;
   if (inIntro) endIntro();
   if (watching) exitWatch(false, false);   // en PLAY, ATRÁS / SIGUIENTE salen y cambian de canal
+  if (albumFlow) { albumFlow = false; closeModal(); }   // registro abierto desde ALBUM COUNT DOWN: se cierra al cambiar de canal
   hideHint();
   cur = (cur + dir + N) % N;
   zap();
@@ -1944,7 +2013,7 @@ function goAway() {
 function comeBack() {
   if (!away || document.hidden) return;
   video.muted = away.v; chAudio.muted = away.a; away = null;
-  try { Snd.ctx && Snd.ctx.resume(); } catch {}
+  try { Snd.ctx && soundOn && Snd.ctx.resume(); } catch {}
   if (on && !watching && video.classList.contains('ready') && video.paused) video.play().catch(() => {});
 }
 document.addEventListener('visibilitychange', () => (document.hidden ? goAway() : comeBack()));
@@ -1959,11 +2028,13 @@ $('#hintX').addEventListener('click', () => { Snd.init(); Snd.close(); hideHint(
 function watch() {
   if (!on) return;
   if (inIntro) endIntro();
+  if (albumFlow) return;
   if (playOff(cur) && !watching) { Snd.error(); navigator.vibrate?.([30, 40, 30]); return; }
   if (watching) return;
   // canales con aviso (1, 2, 4): el primer PLAY sólo muestra el aviso; el segundo → forms (o directo si ya es miembro)
   if (needsPromo(cur)) {
-    if (promo.hidden) { trackPlay('aviso'); promoShown = true; $('#promoTxt').textContent = t(CHANNELS[cur].promo); promo.hidden = false; return; }
+    if (CHANNELS[cur].links) { trackPlay('aviso'); hideHint(); return showPromo(cur); }   // canal ya estrenado: PLAY siempre muestra el aviso con YouTube / Spotify
+    if (promo.hidden) { trackPlay('aviso'); showPromo(cur); return; }
     if (!CHANNELS[cur].unlockUrl) { trackPlay(registered ? 'miembro' : 'registro'); return enterWatch(); }   // canal 7: forms (o descifrado si ya es miembro) → video desbloqueado
     if (isUnlocked(cur) || registered) { trackPlay('miembro'); return enterWatch(); }   // ya desbloqueado: carga y link, sin registro
     trackPlay('registro');
@@ -1980,6 +2051,15 @@ function watch() {
 const promo = $('#promo');
 let promoShown = false, lastT = 0;
 function hidePromo() { promo.hidden = true; }
+function showPromo(i) {
+  const ch = CHANNELS[i], L = ch.links;
+  promoShown = true; body.classList.remove('cue-play');
+  $('#promoTxt').textContent = t(ch.promo);
+  promo.classList.toggle('has-links', !!L);
+  $('#promoLinks').hidden = !L;
+  if (L) { $('#lnkYT').href = L.yt; $('#lnkSP').href = L.sp; }
+  promo.hidden = false;
+}
 video.addEventListener('timeupdate', () => {
   const ch = CHANNELS[cur], t2 = video.currentTime;
   // cuenta regresiva: aparece ya desbloqueado, al terminar la primera vuelta; después se queda
@@ -1990,15 +2070,20 @@ video.addEventListener('timeupdate', () => {
   }
   // el aviso sale al completar la primera vuelta, o en el segundo indicado (promoAt)
   if (needsPromo(cur) && !watching && !promoShown && (ch.promoAt != null ? t2 >= ch.promoAt : t2 + 0.5 < lastT)) {
-    promoShown = true;
-    $('#promoTxt').textContent = t(ch.promo);
-    promo.hidden = false;
+    showPromo(cur);
   }
   lastT = t2;
 });
+// íconos del aviso: YouTube / Spotify en otra pestaña (la web se silencia)
+[['#lnkYT', 'SalidaYouTube'], ['#lnkSP', 'SalidaSpotify']].forEach(([sel, ev]) => $(sel).addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation(); Snd.init(); Snd.click?.();
+  track('trackCustom', ev, { canal: String(cur) });
+  openExternal(e.currentTarget.href);
+}));
 $('#promoX').addEventListener('click', e => { e.stopPropagation(); Snd.init(); Snd.close(); hidePromo(); });
 // tocar el aviso: si el canal ya está abierto, va directo al video (otra pestaña); si no, es como presionar PLAY
 promo.addEventListener('click', () => {
+  if (CHANNELS[cur].links) return;   // con íconos: sólo los íconos llevan a otro lado
   Snd.init(); Snd.click?.();
   if (CHANNELS[cur].unlockUrl && isUnlocked(cur)) { trackPlay('aviso'); hidePromo(); goToUnlockUrl(cur); }
   else watch();
@@ -2231,7 +2316,8 @@ function closePrivacy() { $('#privacyBox').hidden = true; form.hidden = false; }
 function answerAsk(member) { Snd.init(); Snd.click?.(); $('#askBox').hidden = true; form.hidden = false; setVerifyMode(member); if (!member) setTimeout(() => form.elements.name.focus({ preventScroll: true }), 50); }
 $('#askYes').addEventListener('click', () => answerAsk(true));
 $('#askNo').addEventListener('click', () => answerAsk(false));
-$('#askClose').addEventListener('click', () => { Snd.close(); exitWatch(true, false); });
+function closeForm() { Snd.close(); if (albumFlow) { albumFlow = false; closeModal(); } else exitWatch(true, false); }
+$('#askClose').addEventListener('click', closeForm);
 $('#privacy').addEventListener('click', e => { e.preventDefault(); Snd.init(); Snd.click?.(); openPrivacy(); });
 $('#privacyClose').addEventListener('click', () => { Snd.close(); closePrivacy(); });
 $('#toVerify').addEventListener('click', () => { Snd.init(); Snd.click?.(); setVerifyMode(true); });
@@ -2277,7 +2363,8 @@ window.addEventListener('carisma:unlocked', () => {
   const m = $('#modal');
   const after = () => {
     m.classList.remove('crt-off'); closeModal();
-    if (watching) unlock(cur); else if (on) updateOSD();
+    if (albumFlow) { albumFlow = false; updateOSD(); albumGo(); }
+    else if (watching) unlock(cur); else if (on) updateOSD();
   };
   if (!m.hidden) { Snd.close(); m.classList.add('crt-off'); setTimeout(after, 430); } else after();
 });
@@ -2287,17 +2374,29 @@ window.addEventListener('carisma:unlocked', () => {
 $('#dnp').addEventListener('animationiteration', () => { if (!on && Snd.ctx && Snd.ctx.state === 'running') Snd.blip(); });
 document.addEventListener('pointerdown', () => { if (!on) Snd.init(); }, { once: true, capture: true });
 $('#btnPower').addEventListener('click', powerOn);
+// Silenciar / activar todo el sonido de la tele (videos, audio del canal 0, estática de fondo y efectos)
+function setSound(onOff) {
+  soundOn = onOff;
+  Snd.on = onOff;
+  try { if (Snd.ctx) onOff ? Snd.ctx.resume() : Snd.ctx.suspend(); } catch {}   // apaga por completo estática de fondo y efectos
+  video.muted = !onOff;
+  chAudio.muted = !onOff;
+  if (away) { away.v = !onOff; away.a = !onOff; }
+  const b = $('#btnMute'); b.classList.toggle('muted', !onOff); b.setAttribute('aria-pressed', String(!onOff));
+}
+$('#btnMute').addEventListener('click', () => { Snd.init(); if (soundOn) { Snd.click?.(); setSound(false); } else { setSound(true); Snd.click?.(); } });
 $('#langSwitch').addEventListener('click', () => setLang(lang === 'es' ? 'en' : 'es'));
 document.querySelectorAll('.lang [data-lang]').forEach(el => el.addEventListener('click', () => setLang(el.dataset.lang)));
 $('#btnNext').addEventListener('click', () => tune(1));
 // canal 0: saltos rápidos directo a un canal
-document.querySelectorAll('.jump').forEach(b => b.addEventListener('click', () => {
+document.querySelectorAll('.jump[data-jump]').forEach(b => b.addEventListener('click', () => {
   Snd.init(); Snd.key(true); setTimeout(() => Snd.key(false), 120);
   const n = +b.dataset.jump; if (n !== cur) tune(n - cur);
 }));
 $('#btnBack').addEventListener('click', () => tune(-1));
 $('#btnWatch').addEventListener('click', watch);
-$('#btnClose').addEventListener('click', () => { Snd.close(); exitWatch(true, false); });
+$('#btnClose').addEventListener('click', closeForm);
+$('#albumBtn').addEventListener('click', albumClick);
 $('#btnExit').addEventListener('click', () => { Snd.click(); exitWatch(); });
 
 // Teclas: se hunden al presionarlas (con un pequeño retardo para que se vea en móvil)
@@ -2362,7 +2461,7 @@ addEventListener('keydown', e => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { video.pause(); Static.stop(); Snd.ctx?.suspend(); }
   else {
-    Snd.ctx?.resume();
+    if (soundOn) Snd.ctx?.resume();   // si estaba silenciado, sigue en silencio
     if (staticLayer.classList.contains('on')) Static.start();
     if (on && !inIntro && !loading && pattern.hidden) video.play().catch(() => {});
   }
